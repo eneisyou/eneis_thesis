@@ -1,0 +1,62 @@
+\chapter{走化性リモデリングモデルの構築}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%% 既存モデル：フィザルムソルバー %%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{フィザルムソルバー}
+
+図
+\begin{figure}[htbp]
+    \begin{center}
+     \includegraphics[width=70mm]{./figs/solver.png}
+     \caption[変形体の管を模した図]{変形体の管を模した図．}
+      \label{fig:solver}
+    \end{center}
+\end{figure}
+
+数式
+\begin{align}
+    \begin{array}{rrr}
+      \displaystyle	
+        Q_{ij} = \frac{D_{ij}}{L_{ij}}(P_i-P_j)
+    \end{array} \label{array:stream}
+\end{align}
+\begin{align}
+    \begin{array}{rrr}
+      \displaystyle	
+      % fのバリエーションについて注意する
+        \frac{d}{dt}D_{ij}=f(|Q_{ij}|) -aD_{ij}
+    \end{array} \label{array:tube}
+\end{align}
+\begin{align}
+  \begin{array}{rrr}
+    \displaystyle	
+      f(|Q_{ij}|) = |Q_{ij}|^\gamma
+  \end{array} \label{array:gamma}
+\end{align}
+
+表
+\begin{table}[htbp]
+  \caption[初期パラメータ一覧]
+  {既存モデルPSと提案モデルO-PSで設定したパラメータ一覧}
+  \label{table:init_parameters}
+  \centering
+  \begin{tabular}{lll}
+  \hline
+  \multicolumn{1}{|l||}{パラメータ} & \multicolumn{1}{l|}{説明} & \multicolumn{1}{l|}{値} \\ \hline \hline
+  \multicolumn{1}{|l||}{$t$}  & \multicolumn{1}{l|}{シミュレーション実行時間}  & \multicolumn{1}{l|}{100}  \\ \hline
+  \multicolumn{1}{|l||}{$\Delta t$}  & \multicolumn{1}{l|}{シミュレーション実行時間の刻み幅}  & \multicolumn{1}{l|}{0.1}  \\ \hline
+  \multicolumn{1}{|l||}{$D_{ij}^0$} & \multicolumn{1}{l|}{ノード$i$と$j$を繋ぐエッジの初期コンダクティビティ} & \multicolumn{1}{l|}{1.0} \\ \hline
+  \multicolumn{1}{|l||}{$L_{ij}$}  & \multicolumn{1}{l|}{ノード$i$と$j$を繋ぐエッジの長さ}  & \multicolumn{1}{l|}{1.0}  \\ \hline
+  \multicolumn{1}{|l||}{$\gamma$}  & \multicolumn{1}{l|}{エッジの成長指数}  & \multicolumn{1}{l|}{1.0}  \\ \hline
+  \multicolumn{1}{|l||}{$F_0$}  & \multicolumn{1}{l|}{ネットワーク全体の流量}  & \multicolumn{1}{l|}{1.0}  \\ \hline
+  \multicolumn{1}{|l||}{$\alpha$}  & \multicolumn{1}{l|}{エッジの消失定数}  & \multicolumn{1}{l|}{1.0}  \\ \hline
+  \multicolumn{1}{|l||}{$\beta$}  & \multicolumn{1}{l|}{振動成分の影響定数}  & \multicolumn{1}{l|}{0.001}  \\ \hline
+  \multicolumn{1}{|l||}{$\kappa$}  & \multicolumn{1}{l|}{エッジ内流量の周期変化}  & \multicolumn{1}{l|}{0.02}  \\ \hline
+  \multicolumn{1}{|l||}{$\phi_{ij}(t)$}  & \multicolumn{1}{l|}{時刻$t$におけるノード$i$と$j$を繋ぐエッジの振動位相変化}  & \multicolumn{1}{l|}{0.0}  \\ \hline
+  \multicolumn{1}{|l||}{$\bar{A}$}  & \multicolumn{1}{l|}{走化性波及の振幅上限定数}  & \multicolumn{1}{l|}{1.0}  \\ \hline
+  % \multicolumn{1}{|l||}{$\sigma$}  & \multicolumn{1}{l|}{走化性波及の分布}  & \multicolumn{1}{l|}{0.0}  \\ \hline
+  \multicolumn{1}{|l||}{$\tau$}  & \multicolumn{1}{l|}{走化性波及の振幅減衰率}  & \multicolumn{1}{l|}{10.0}  \\ \hline
+  \multicolumn{1}{|l||}{offset}  & \multicolumn{1}{l|}{走化性波及のオフセット値}  & \multicolumn{1}{l|}{1.0}  \\ \hline
+  \end{tabular}
+\end{table}

@@ -1,0 +1,74 @@
+\documentclass[12pt,a4paper,dvipdfmx,enablejfam=true]{masterthesis}
+\usepackage{ascmac}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{here}
+\usepackage{comment}
+\usepackage{url}
+\usepackage{multirow}
+\usepackage{setspace}
+\usepackage{amsmath}
+\usepackage{fancyhdr}
+\usepackage{siunitx}
+\usepackage{amsfonts,amsthm,amssymb}
+\usepackage{mathtools}
+\usepackage{titlesec}
+\usepackage{tocloft}
+
+% \chapter のフォントを変更
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter\ 章}{30pt}{\Huge}
+% \section のフォントを変更
+\titleformat{\section}
+  {\normalfont\Large\bfseries}{\thesection}{1em}{}
+% \subsection のフォントを変更
+\titleformat{\subsection}
+  {\normalfont\large\bfseries}{\thesubsection}{1em}{}
+%  目次のフォント変更，「第○章」と章タイトルがかぶるため手動で外す
+\renewcommand\cftchapnumwidth{8.5ex}
+% \renewcommand{\cftchapfont}{\normalfont\bfseries}{1em}{}
+
+%%%%%%%%%  表紙  %%%%%%%%%
+\title{ここにタイトルを入れる}
+\author{姓 名}
+\adviser{國田 樹}
+\frontmatter %ページ番号をromanに変更
+\etitle{Write a title in English}
+\eauthor{first last}
+\eadviser{Prof. Itsuki Kunita}
+\shusa{國田 樹}
+\hukusaa{副査1}
+\hukusab{副査2}
+
+%%%%%%%%%  ドキュメント開始  %%%%%%%%%
+\begin{document}
+\maketitle
+% 概要
+\include{./text/Jabstract.tex}
+% 概要（英）
+\include{./text/Eabstract.tex}
+% 研究関連業績
+\include{./text/history.tex}
+
+\mainmatter %ページ番号をarabicに変更
+
+% 目次（subsubsectionまで反映させる
+\setcounter{tocdepth}{2}
+\tableofcontents
+\newpage
+% 図目次
+\listoffigures
+\newpage
+% 表目次
+\listoftables
+
+%%%%%%%%%  本文  %%%%%%%%%
+\include{./text/introduction}
+\include{./text/chapter2}
+\include{./text/chapter3}
+\include{./text/chapter4}
+\include{./text/summery}
+\include{./text/thanks}
+% 参考文献
+\include{./text/reference}
+
+\end{document}
