@@ -31,13 +31,37 @@ AR を用いた空間芸術展示において、キュレーターの役割は�
 
 GPS （全地球測位システム）や磁気センサ、加速度センサ等の位置情報を利用し、特定の地理的座標にデジタルコンテンツを配置する手法である。広域な屋外展示には適しているが、屋内における位置特定精度や、高さ方向の正確な整合（レジストレーション）に課題が残る場合が多く、精密な芸術作品の配置には不向きである。
 
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/基礎概念/ロケーションベースAR.png}
+\caption[ロケーションベースAR]{ロケーションベースAR [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
 \subsection{マーカ型ビジョンベース AR}
 
 特定の画像（マーカ）をカメラで認識し、その特徴量に基づいてデジタルコンテンツの表示位置や傾きを決定する手法である。本研究では、AR コンテンツの識別子（ID）と空間的な配置基準点（空間アンカー）の両方の機能を併せ持つ QR コードをマーカとして採用する。これにより、鑑賞者は意図した作品を正確な位置で呼び出すことが可能となる。
 
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/基礎概念/マーカ型ビジョンベースAR.png}
+\caption[マーカ型ビジョンベースAR]{マーカ型ビジョンベースAR [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
 \subsection{マーカレス型ビジョンベース AR}
 
 特定のマーカを必要とせず、SLAM （Simultaneous Localization and Mapping）技術等を用いて周囲の環境形状をリアルタイムに解析し認識する手法である。本研究で使用する HMD （ヘッドマウンドディスプレイ）の Meta Quest 3 等最新デバイスでは、深度センサとカメラを用いた高度な空間認識が可能であり、壁面や床面を物理的な制約としてデジタルコンテンツに反映させることができる。しかし、この方式では計算量が多くて単なる HMD を用いてのリアルタイム性および安定性はマーカ型より劣っている。
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/基礎概念/マーカレス型ビジョンベースAR.png}
+\caption[マーカレス型ビジョンベースAR]{マーカレス型ビジョンベースAR [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
 
 \section{Unity 開発プラットフォーム}
 \subsection{Unity (ユニティ)}
@@ -89,6 +113,14 @@ Meta XR Voice SDK は Meta XR All-in-One SDK に統合された音声認識モ�
 
 Wit.AI は Meta 社が提供する自然言語処理（Natural Language Processing: NLP）プラットフォームであり、ユーザーの非構造化データ（音声やテキスト）を、コンピュータが処理可能な構造化データへと変換するクラウドサービスである。本研究において、Wit.AI は鑑賞者の発話意図を解析し、具体的な操作命令へと変換する核心的なエンジンとして機能する。Wit.AI の処理プロセスは主に以下の要素によって構成される。
 
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/基礎概念/Wit.AIの処理プロセス.png}
+\caption[Wit.AIの処理プロセス]{Wit.AIの処理プロセス [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
 1. Intents (インテント)
 
 インテントは、ユーザーの発話が「何をしようとしているのか」という意図を定義したものである。例えば、「解説を再生して」や「次の作品へ移動」といった発話に対し、それぞれ PlayDescription や MoveToNext といった識別子を割り当てる。システムは返却されたインテント識別子に基づき、実行すべき C\# メソッドを決定する。
@@ -129,6 +161,14 @@ Prefab 内にシリアライズされたスクリプト参照を、実行時に�
 \subsection{システム構成}
 
 提案するシステムは、コンテンツを一元管理する静的ファイルサーバ、それを制作かつアップロードするキュレーター端ツール（ARShowNode）、および鑑賞者が利用するクライアントアプリ（ARShow）の三要素から成るクライアントサーバモデルを採用している。
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/基礎概念/提案システム構成.png}
+\caption[提案システム構成]{提案システム構成 [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
 
 \subsection{コンテンツの分離とオンデマンド配信}
 

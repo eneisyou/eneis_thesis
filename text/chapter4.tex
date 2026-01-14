@@ -7,6 +7,14 @@
 
 本システムは、AR（拡張現実）を用いた芸術展示において、キュレーター（制作者）と鑑賞者の間に存在するコミュニケーションコストの削減、および展示コンテンツの持続可能な運用を解決することを主たる目的として設計された。従来のデジタル芸術展示、特にアプリベースのAR展示においては、策展者が作品を公開するためにアプリケーションそのものを配布する必要があり、更新のたびに再配布や再インストールが求められるという課題があった。また、展示会終了とともにアプリのサポートが終了し、作品の鑑賞が不可能になるケースも散見される。さらに、鑑賞者にとっても、展示ごとに異なる操作方法や導入手順を学習する必要があり、これが鑑賞体験への障壁となっていた。
 
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/設計思想.png}
+\caption[設計思想]{設計思想 [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
 これらの課題に対し、本システムはキュレーターと鑑賞者を媒介するプラットフォームとしての役割を果たす。具体的には、UnityのAssetBundle機能とHybridCLRによるホットアップデート技術を組み合わせることで、アプリケーション本体を更新することなく、展示コンテンツ（ロジックを含む）をサーバ経由で動的に追加や更新可能なアーキテクチャを採用した。策展者は、提供されるツールキットに従いAR展品（Node）を作成し、サーバへアップロードするだけで、恒久的なアクセスが可能となる。一方、鑑賞者は単一のクライアントアプリ（ARShow）を使用し、会場のQRコードをスキャンするだけで、即座に該当する作品コンテンツをダウンロードし、鑑賞を開始することができる。この設計により、ハードウェアやアプリの更新に依存しない作品の永続性と、直感的かつ統一された鑑賞体験の両立を目指している。
 
 \section{開発環境}
@@ -17,17 +25,81 @@
 
 本システムの開発および実行には、コンテンツ制作とサーバホスティングを行うPCと、AR体験を提供するHMD（Head Mounted Display）を用いた。開発用PCには、Windows 11 Professional (25h2) を搭載したワークステーションを使用した。Windows環境を採用した主な理由は、Meta Quest Link機能を利用することで、実機へのビルドしてインストールを行うことなく、Unityエディタ上で直接VR/AR空間の動作確認が可能となり、開発効率が著しく向上するためである。鑑賞用デバイスには、ビデオシースルー機能を備えたスタンドアロン型HMDであるMeta Quest 3を採用した。また、開発機とHMDの接続には、大容量データの高速転送および安定した串流（ストリーミング）を実現するため、転送速度2.5Gbps以上の帯域を持つUSB-Cケーブルを使用した。ネットワーク環境として、本研究ではローカルエリアネットワーク（LAN）内での運用を想定し、スマートフォン（機種：[表1参照]）のテザリング機能を用いてPCとHMDを同一ネットワークに接続した。なお、スマートフォン再起動等によるIPアドレスの変更に対応するため、開発機側で固定IP設定もしくは動的IPの確認手順を確立して運用した。
 
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ハードウェア/PC.png}
+\caption[PC]{PC [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ハードウェア/MetaQuest3.png}
+\caption[MetaQuest3]{MetaQuest3 [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ハードウェア/USBCケーブル.png}
+\caption[USBCケーブル]{USBCケーブル [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ハードウェア/スマートフォン.png}
+\caption[スマートフォン]{スマートフォン [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
 [表1: 開発および実行に使用したハードウェアスペック一覧] （ここにPCのCPU/GPU/メモリ構成、Quest 3の仕様、スマートフォンの機種名を記載する表を挿入）
 
 \subsection{ソフトウェア}
 
 本システムのソフトウェア開発環境は、Unityを統合開発環境の中核とし、Meta社が提供するXR開発キットおよびサードパーティ製のライブラリ群によって構成されている。主要な開発プラットフォームとしてUnity（バージョン：[表2参照]）を使用し、Meta Quest 3のパススルー機能や空間認識機能を利用するためにMeta XR All-in-One SDKおよびOpenXRプラグインを導入した。UI構築には、QuestのシステムUIと親和性の高いMeta Horizon OS UI Setを採用した。 本システムの核となる動的コード実行（ホットアップデート）には、C\#インタープリタフレームワークであるHybridCLRを利用し、QRコードの認識にはZXing.unityを採用した。また、音声認識機能の実装にはMeta Wit.aiを活用している。実機へのデプロイおよび画面収録、デバッグには、Meta Quest Developer Hub (MQDH) およびMeta Quest Linkを使用した。 サーバサイドは、Unityと開発言語（C\#）を統一するため、ASP.NET Coreを用いたMinimal APIとして実装した。
 
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ソフトウェア/MetaHorizonOSUISet.png}
+\caption[MetaHorizonOSUISet]{MetaHorizonOSUISet [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ソフトウェア/MQDH.png}
+\caption[MQDH]{MQDH [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}MetaHorizonOSUISet
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ソフトウェア/MetaHorizonLink.png}
+\caption[MetaHorizonLink]{MetaHorizonLink [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
 [表2: 使用したソフトウェアおよびライブラリのバージョン一覧] （Unity, Meta SDK, HybridCLR, WitAI, ZXing, OpenXR等のバージョンを記載する表を挿入）
 
 \section{システム構成}
 
 本節では、提案システムの具体的な構成要素と、それらが連携するアーキテクチャについて詳細に述べる。提案システムは大きく分けて、(1)キュレーターが展示コンテンツを制作および出力するためのUnityプロジェクト「ARShowNode」、(2)鑑賞者が使用する閲覧用アプリケーション「ARShow」、(3)コンテンツを保持かつ配信する「静的ファイルサーバ」の三つ要素から構成される。
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/提案システムの全体構成図.png}
+\caption[提案システムの全体構成図]{提案システムの全体構成図 [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
 
 [図1: 提案システムの全体構成図] （ARShowNodeでの制作、サーバへのアップロード、ARShowアプリでのQRスキャンとダウンロードの流れを示す図を挿入）
 
