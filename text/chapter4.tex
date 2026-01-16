@@ -107,13 +107,37 @@
 
 ARShowNodeは、キュレーター（制作者）向けに提供されるUnityプロジェクトおよびツールキットである。本プロジェクトは、AR展品を「Node」という単位（Unity AssetBundle）で管理し、各Nodeには3Dモデル、音声、映像、および動的ロジック（C\#スクリプト）が含まれる。
 
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ARShowNode/ARShowNodeGlobal.png}
+\caption[ARShowNodeGlobal]{ARShowNodeGlobal [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
 \subsubsection{HybridCLR}
 
 本システムにおける技術的な核心は、HybridCLRの採用にある。通常のUnity製アプリ（IL2CPPビルド）では、ビルド後にC\#スクリプトの挙動を変更することは不可能である。しかし、HybridCLRを導入することで、C\#コードをコンパイルしたDLLをアセットとして扱い、実行時にインタープリタモードでロードして実行することが可能となる。ARShowNodeでは、キュレーターが記述したスクリプトをHybridCLRによってAOT（Ahead-Of-Time）メタデータとホットアップデート用DLLに変換し、これらをAssetBundleに含めることで、アプリ本体の更新を伴わない展示ロジックの配信を実現している。
 
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ARShowNode/HybridCLRTool.png}
+\caption[HybridCLRTool]{HybridCLRTool [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
 \subsubsection{制作のための Unity ツール}
 
 本研究では、キュレーターの作業負荷を軽減するため、ARShowNodeプロジェクト内に専用のUnityエディタ拡張ツールを実装した。このツールはメニューバーからアクセス可能であり、以下の4つの機能を順次実行することで展示データの配信を行う。
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ARShowNode/ARShowTool.png}
+\caption[ARShowTool]{ARShowTool [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
 
 DLLの複製: HybridCLRによって生成されたAOTメタデータのDLLおよびホットアップデートのDLLを、Unityプロジェクト内のAssetsディレクトリへコピーする。複数作品（Node）を同時制作する場合、各Nodeに対応したDLLを複製する。
 
@@ -129,25 +153,81 @@ QRコード生成: 各AssetBundleの識別子（Node名）情報を格納したQ
 
 「Node」は、本システムにおける1つの展示作品単位であり、1つのAssetBundleに対応する。各Nodeは、展示物の実体であるPrefab、関連する設定ファイル、メディアアセット（画像、音響）、および制御用スクリプトの集合体である。本研究では、同一Unityプロジェクト内で複数のNode（Node0, Node1, Node2...）を並行して制作と管理可能な構造としている。
 
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/Node/NodeGlobal.png}
+\caption[NodeGlobal]{NodeGlobal [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
 \subsubsection{エントリポイント (Entry.cs)}
 
 動的にロードされたスクリプトを、実行時（Runtime）に正しくゲームオブジェクトにアタッチし機能させるため、本システムでは「Entry.cs」という規約に基づいたエントリポイントスクリプトを導入した。 通常のUnity開発ではInspector上でスクリプトをアタッチするが、別プロジェクトでビルドされたAssetBundle内のスクリプトを復元する場合、GUIDの不整合等により参照が切れる問題がある。これを回避するため、本システムではHybridCLRの推奨手法に基づき、実行時に GameObject.AddComponentメソッドを介してスクリプトを動的に付与する方式を採用した。Entry.csは各Nodeの初期化ロジックを担い、AssetBundleのロード完了後、ARShowアプリ側から明示的に呼び出されることで、Prefabのインスタンス化や依存コンポーネントのセットアップを実行する。
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ARShowNode/EntryGlobal.png}
+\caption[EntryGlobal]{EntryGlobal [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ARShowNode/EntryCode.png}
+\caption[EntryCode]{EntryCode [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
 
 \subsubsection{AssetBundle}
 
 UnityのAssetBundle機能を利用し、Nodeごとのリソースとコードをパッケージ化している。前述の通り、本システムではAssetBundle内にHybridCLR用のDLLを含める点が特徴である。これにより、3Dモデルやテクスチャだけでなく、インタラクション等の「振る舞い」も含めた完全な展示パッケージとして配信される。
 
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ARShowNode/AssetBundleGlobal.png}
+\caption[AssetBundleGlobal]{AssetBundleGlobal [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
 \subsubsection{WitAI}
 
 音声操作を実現するため、Meta社が提供する自然言語処理サービスWit.aiを導入した。Node内で音声認識が必要な場合、ユーザーの音声入力はMeta XR Voice SDKを通じてテキスト化され、Wit.aiサーバへ送信される。サーバ上で事前に定義されたインテント（意図）やエンティティ（Entity）の解析が行われ、その結果に基づいてUnity側の関数がトリガーされる仕組みである。本研究では、中国語による音声コマンド制御の事例を実装した。
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ARShowNode/WitAI配置.png}
+\caption[WitAI配置]{WitAI配置 [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
 
 \subsection{ARShow}
 
 ARShowは、Meta Quest 3上で動作する鑑賞者用アプリケーションである。本アプリは、QRコードのスキャン、AssetBundleのダウンロード、および動的コンテンツの再生環境を提供するコンテナとして機能する。
 
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ARShow/ARShowGlobal.png}
+\caption[ARShowGlobal]{ARShowGlobal [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
 \subsubsection{スキャンモード}
 
 アプリ起動後、ユーザーはUI上の「ScanQr」ボタンを押下することでスキャンモードへ移行する。このモードでは、パススルーカメラの映像上にQRコード検出用のガイドが表示され、認識待機状態となる。
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ARShow/ScanQrボタン.png}
+\caption[ScanQrボタン]{ScanQrボタン [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
 
 \subsubsection{QR Code 検出}
 
@@ -157,21 +237,61 @@ QRコードの認識には ZXing.unity ライブラリを使用し、Quest 3の�
 
 識別子に基づき、サーバから該当するAssetBundleをダウンロードする。ダウンロード中は、QRコードの物理位置にプログレスバー（進捗率）を空間表示し、ユーザーへのフィードバックを行う。 ダウンロード完了後、システムは以下の手順でアセットを展開する。
 
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/Node/Node0Progress.png}
+\caption[Node0Progress]{Node0Progress [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/Node/Node2Progress.png}
+\caption[Node2Progress]{Node2Progress [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
 1、AssetBundleからHybridCLR用のAOTメタデータDLLをメモリ上に展開し、IL2CPPランタイムに登録する。
 
 2、ホットアップデート用DLLをロードする。
 
 3、ロードされたアセンブリ内から Entry.cs のエントリポイントメソッドをリフレクションを用いて呼び出す。 これにより、AR展品がシーン内に初期化され、インタラクションが開始される。
 
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/Node/Node0UI.png}
+\caption[Node0UI]{Node0UI [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
 \subsubsection{AOT裁ちの防ぎ (AOT Stripping Prevention)}
 
 UnityのIL2CPPビルドでは、ビルド時に使用されていないコードや型情報はファイルサイズ削減のために削除（ストリッピング）される。しかし、動的にロードされるNode側のスクリプトが、アプリ本体側で削除された型に依存している場合、実行時エラーが発生する。これを防ぐため、本システムでは link.xml ファイルを定義し、Nodeで使用する可能性のあるアセンブリや型を明示的に記述することで、ビルド時のストリッピングを回避している。これにより、ARShowNodeで開発された任意のスクリプトが、ARShowアプリ上で正しく動作することを保証している。
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ARShow/Linkxml配置.png}
+\caption[Linkxml配置]{Linkxml配置 [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
 
 [図3: アセットロードとスクリプト実行の内部シーケンス図] （ダウンロード、DLLロード、Entryメソッド実行の流れを示す図を挿入）
 
 \subsection{サーバ}
 
 AssetBundleのホスティングには、開発用PC上で動作するASP.NET Coreベースの静的ファイルサーバを用いた。本サーバはMinimal API構成で実装されており、HTTPリクエストに応じてAssetBundleファイルを提供する単純かつ高速な仕様となっている。 ARShowアプリのメニューには、このサーバの「起動」「停止」「ディレクトリ清掃」を制御する機能も統合されており、展示運用時のサーバ管理を容易にしている。なお、開発環境（ローカルLAN）においては、サーバIPアドレスをARShowアプリ側の設定と一致させる必要がある。
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ARShow/ServerTool.png}
+\caption[ServerTool]{ServerTool [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
 
 \section{UI とインタラクション}
 
@@ -181,15 +301,39 @@ AssetBundleのホスティングには、開発用PC上で動作するASP.NET Co
 
 Node0は、本システムの中で最も機能的に複雑な展示例であり、文化財の3Dモデル表示と解説テキスト、および音声操作を組み合わせた複合的なARコンテンツである。
 
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/Node/Node0UI.png}
+\caption[Node0UI]{Node0UI [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
 \subsubsection{インターフェース構成}
 
 本NodeのUIは、Meta Horizon OS UI Setをベースに構築されており、Meta Questの標準的なシステムUIと親和性の高いデザインを採用している。画面構成は主に「3Dモデル表示領域」と「操作用テキストキャンバス」の2つのモジュールから成る。テキストキャンバスは、機能に応じて以下の3つのセクションに区分されている。
 
 スクリーンリーダー制御: 解説音声の「再生（Play）」「一時停止（Pause）」「停止（Stop）」を行うボタン群。
 
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/Node/Node0UIReader.png}
+\caption[Node0UIReader]{Node0UIReader [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
 情報表示と設定: 文化財の解説テキストを表示するエリアおよび言語選択ドロップダウンメニュー。言語切り替えにより、テキストと読み上げ音声が即座に変更される。
 
-音声コマンド制御: 「Speak」ボタンと認識結果を表示するテキストボックス。
+音声コマンド制御: 「Listen」ボタンと認識結果を表示するテキストボックス。
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/Node/Node0UIListen.png}
+\caption[Node0UIListen]{Node0UIListen [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
 
 \subsubsection{インタラクション}
 
@@ -197,15 +341,55 @@ Node0は、本システムの中で最も機能的に複雑な展示例であり
 
 1、タッチ操作（Poke）: 仮想ボタンを指先で直接押すことで、再生制御やモード切替を行う。
 
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/Node/Node0UIPoke.png}
+\caption[Node0UIPoke]{Node0UIPoke [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
 2、遠隔操作（Ray）: 手から発せられるレイ（光線）を用いて、離れた位置にあるUI要素を選択・操作する。
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/Node/Node0UIRay.png}
+\caption[Node0UIRay]{Node0UIRay [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
 
 3、把持操作（Grab）: UIパネルや3Dモデルを「掴む」ジェスチャにより、鑑賞しやすい位置や角度へ自由に移動させることができる。
 
-これらのインタラクションを実現するため、技術的には CanvasModuleEvent システムを利用している。通常、このイベントシステムはUnityシーン内に常駐する必要があるが、本システムでは動的にロードされるNode側（ARShowNode）で定義されたイベント設定を、実行時に本体アプリ（ARShow）のシーンへ正しく引き継ぐ仕組みを実装することで、スムーズな操作性を確保している。
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/Node/Node0UIGrab.png}
+\caption[Node0UIGrab]{Node0UIGrab [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
+これらのインタラクションを実現するため、技術的には PointableCanvasModule システムを利用している。通常、このイベントシステムはUnityシーン内に常駐する必要があるが、本システムでは動的にロードされるNode側（ARShowNode）で定義されたイベント設定を、実行時に本体アプリ（ARShow）のシーンへ正しく引き継ぐ仕組みを実装することで、スムーズな操作性を確保している。
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/ARShow/PointableCanvasModule.png}
+\caption[PointableCanvasModule]{PointableCanvasModule [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
 
 \subsubsection{音声コマンド制御}
 
 「Speak」ボタンを押下すると音声認識モードへ移行し、Wit.aiを介したボイスコマンドによる操作が可能となる。例えば、所定のキーワードを発話することで、ボタン操作なしに解説の再生や言語変更を行うことができる。認識された発話内容はUI上にテキストとしてフィードバックされ、確実な入力を支援する。
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/Node/Node0SpeakTrans.png}
+\caption[Node0SpeakTrans]{Node0SpeakTrans [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
 
 [図4: Node0のインターフェース構成（第一人称視点）] （解説パネル、操作ボタン、3Dモデルの配置を示したARビューのスクリーンショットを挿入）
 
@@ -213,11 +397,27 @@ Node0は、本システムの中で最も機能的に複雑な展示例であり
 
 Node1は、映像メディアをAR空間内に配置する展示例である。Unityのプリミティブ形状であるQuad（板ポリゴン）にVideo Playerコンポーネントを付加し、独自の録画映像と音声を再生する構成となっている。本NodeにもGrabインタラクションが付与されており、鑑賞者は空中に浮かぶスクリーンを手に取り、壁面に配置したり、目の前に引き寄せて細部を確認したりといった、物理的なスクリーンと同様の取り回しが可能である。これは、動画解説パネルやデジタルサイネージとしての利用を想定した実装である。
 
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/Node/Node1UI.png}
+\caption[Node1UI]{Node1UI [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
+
 [図5: Node1 映像コンテンツの再生と把持操作の様子] （空間に浮かぶ映像スクリーンを手で移動させている様子を示す図を挿入）
 
 \subsection{Node2: 3Dモデル（文化財）の展示}
 
 Node2は、静的な3Dオブジェクトの展示に特化した最小構成の例である。ここでは、Sketchfabより取得した青銅器の3Dモデル（glTF形式）をPrefab化し、AssetBundleとして配信している。Node1同様、Grabインタラクションが設定されており、鑑賞者は貴重な文化財モデルを仮想的に手に取り、あらゆる角度から詳細に観察することができる。このNodeは、複雑なスクリプトを含まない純粋なアセットデータも、本システムを通じて問題なく配信や操作可能であることを実証している。
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/Node/Node2UI.png}
+\caption[Node2UI]{Node2UI [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
 
 \section{ワークフロー}
 
@@ -226,6 +426,14 @@ Node2は、静的な3Dオブジェクトの展示に特化した最小構成の�
 \subsection{制作サイド（キュレーター）}
 
 キュレーター側の作業は、Unityプロジェクト「ARShowNode」を用いて行われる。
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/制作者ワークフロー.png}
+\caption[制作者ワークフロー]{制作者ワークフロー [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
 
 \subsubsection{ARShowNode プロジェクトの配置}
 
@@ -256,6 +464,14 @@ QRコード生成: ツールメニューの「Generate QR」を実行し、各As
 \subsection{鑑賞サイド（鑑賞者）}
 
 鑑賞者は、HMD（Meta Quest 3）を装着し、以下の手順で展示を体験する。
+
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=100mm]{./figs/提案システム/閲覧者ワークフロー.png}
+\caption[閲覧者ワークフロー]{閲覧者ワークフロー [5]．}
+\label{fig:tobita_config}
+\end{center}
+\end{figure}
 
 \subsubsection{ARShow AR APP のインストール}
 
