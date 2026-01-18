@@ -5,8 +5,11 @@
 
 本節では、本研究で提案したAR展示システムの設計思想について述べる。
 
-本システムは、AR（拡張現実）を用いた芸術展示において、キュレーター（制作者）と鑑賞者の間に存在するコミュニケーションコストの削減、および展示コンテンツの持続可能な運用を解決することを主たる目的として設計された。従来のデジタル芸術展示、特にアプリベースのAR展示においては、策展者が作品を公開するためにアプリケーションそのものを配布する必要があり、更新のたびに再配布や再インストールが求められるという課題があった。また、展示会終了とともにアプリのサポートが終了し、作品の鑑賞が不可能になるケースも散見される。さらに、鑑賞者にとっても、展示ごとに異なる操作方法や導入手順を学習する必要があり、これが鑑賞体験への障壁となっていた。
+本システムは、AR（拡張現実）を用いた芸術展示において、キュレーター（制作者）と鑑賞者（閲覧者）の間に存在するコミュニケーションコストの削減、および展示コンテンツの持続可能な運用を解決することを主たる目的として設計された。従来のデジタル芸術展示、特にアプリベースのAR展示においては、策展者が作品を公開するためにアプリケーションそのものを配布する必要があり、更新のたびに再配布や再インストールが求められるという課題があった。また、展示会終了とともにアプリのサポートが終了し、作品の鑑賞が不可能になるケースも散見される。さらに、鑑賞者にとっても、展示ごとに異なる操作方法や導入手順を学習する必要があり、これが鑑賞体験への障壁となっていた。
 
+これらの課題に対し、本システムはキュレーターと鑑賞者を媒介するプラットフォームとしての役割を果たす。本システムの設計思想を図\ref{fig:tobita_config}に示す。具体的には、UnityのAssetBundle機能とHybridCLRによるホットアップデート技術を組み合わせることで、アプリケーション本体を更新することなく、展示コンテンツ（ロジックを含む）をサーバ経由で動的に追加や更新可能なアーキテクチャを採用した。策展者は、提供されるツールキットに従いAR展品（Node）を作成し、サーバへアップロードするだけで、恒久的なアクセスが可能となる。一方、鑑賞者は単一のクライアントアプリ（ARShow）を使用し、会場のQRコードをスキャンするだけで、即座に該当する作品コンテンツをダウンロードし、鑑賞を開始することができる。この設計により、ハードウェアやアプリの更新に依存しない作品の永続性と、直感的かつ統一された鑑賞体験の両立を目指している。
+
+% 設計思想の図
 \begin{figure}[htbp]
 \begin{center}
 \includegraphics[width=100mm]{./figs/提案システム/設計思想.png}
@@ -15,408 +18,618 @@
 \end{center}
 \end{figure}
 
-これらの課題に対し、本システムはキュレーターと鑑賞者を媒介するプラットフォームとしての役割を果たす。具体的には、UnityのAssetBundle機能とHybridCLRによるホットアップデート技術を組み合わせることで、アプリケーション本体を更新することなく、展示コンテンツ（ロジックを含む）をサーバ経由で動的に追加や更新可能なアーキテクチャを採用した。策展者は、提供されるツールキットに従いAR展品（Node）を作成し、サーバへアップロードするだけで、恒久的なアクセスが可能となる。一方、鑑賞者は単一のクライアントアプリ（ARShow）を使用し、会場のQRコードをスキャンするだけで、即座に該当する作品コンテンツをダウンロードし、鑑賞を開始することができる。この設計により、ハードウェアやアプリの更新に依存しない作品の永続性と、直感的かつ統一された鑑賞体験の両立を目指している。
-
 \section{開発環境}
 
 本節では、本システムの構築および動作検証に使用したハードウェアおよびソフトウェア環境について述べる。
 
 \subsection{ハードウェア}
 
-本システムの開発および実行には、コンテンツ制作とサーバホスティングを行うPCと、AR体験を提供するHMD（Head Mounted Display）を用いた。開発用PCには、Windows 11 Professional (25h2) を搭載したワークステーションを使用した。Windows環境を採用した主な理由は、Meta Quest Link機能を利用することで、実機へのビルドしてインストールを行うことなく、Unityエディタ上で直接VR/AR空間の動作確認が可能となり、開発効率が著しく向上するためである。鑑賞用デバイスには、ビデオシースルー機能を備えたスタンドアロン型HMDであるMeta Quest 3を採用した。また、開発機とHMDの接続には、大容量データの高速転送および安定した串流（ストリーミング）を実現するため、転送速度2.5Gbps以上の帯域を持つUSB-Cケーブルを使用した。ネットワーク環境として、本研究ではローカルエリアネットワーク（LAN）内での運用を想定し、スマートフォン（機種：[表1参照]）のテザリング機能を用いてPCとHMDを同一ネットワークに接続した。なお、スマートフォン再起動等によるIPアドレスの変更に対応するため、開発機側で固定IP設定もしくは動的IPの確認手順を確立して運用した。
+本システムの開発および実行には、コンテンツ制作とサーバホスティングを行うPCと、AR体験を提供するHMD（Head Mounted Display）を用いた。
 
+開発用PC（図\ref{fig:pc}）には、Windows 11 Professional (25h2) を搭載したワークステーションを使用した。Windows環境を採用した主な理由は、Meta Quest Link機能を利用することで、実機へのビルドしてインストールを行うことなく、Unityエディタ上で直接AR空間の動作確認が可能となり、開発効率が著しく向上するためである。
+
+本研究で使用したPCの具体的なハードウェア構成を表\ref{table:pc_spec}に示す。
+
+% PCの図
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/ハードウェア/PC.png}
-\caption[PC]{PC [5]．}
-\label{fig:tobita_config}
-\end{center}
+\caption[PC]{開発に使用したPCの外観}
+\label{fig:pc}
 \end{figure}
 
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=100mm]{./figs/提案システム/ハードウェア/MetaQuest3.png}
-\caption[MetaQuest3]{MetaQuest3 [5]．}
-\label{fig:tobita_config}
-\end{center}
-\end{figure}
+% PCスペック表
+\begin{table}[htbp]
+  \caption[開発用PCの仕様]
+  {開発用PC (Redmi G Pro 2024) のハードウェア構成}
+  \label{table:pc_spec}
+  \centering
+  \begin{tabular}{lll}
+  \hline
+  \multicolumn{1}{|l||}{分類} & \multicolumn{1}{l|}{項目} & \multicolumn{1}{l|}{仕様} \\ \hline \hline
+  \multicolumn{1}{|l||}{General}  & \multicolumn{1}{l|}{Model Name}  & \multicolumn{1}{l|}{Redmi G Pro 2024}  \\ \hline
+  \multicolumn{1}{|l||}{System}  & \multicolumn{1}{l|}{OS}  & \multicolumn{1}{l|}{Windows 11 Professional}  \\ \hline
+  \multicolumn{1}{|l||}{Hardware} & \multicolumn{1}{l|}{CPU} & \multicolumn{1}{l|}{Intel Core i7-14650HX} \\ \hline
+  \multicolumn{1}{|l||}{Hardware}  & \multicolumn{1}{l|}{GPU}  & \multicolumn{1}{l|}{NVIDIA GeForce RTX 4060 Laptop}  \\ \hline
+  \multicolumn{1}{|l||}{Hardware}  & \multicolumn{1}{l|}{Memory (RAM)}  & \multicolumn{1}{l|}{32 GB (DDR5)}  \\ \hline
+  \multicolumn{1}{|l||}{Hardware}  & \multicolumn{1}{l|}{Storage}  & \multicolumn{1}{l|}{1 TB SSD (PCIe 4.0)}  \\ \hline
+  \end{tabular}
+\end{table}
+
+鑑賞用デバイスには、ビデオシースルー機能を備えたスタンドアロン型HMDであるMeta Quest 3（図\ref{fig:quest3}）を採用した。また、開発PC機とHMDの接続には、大容量データの高速転送および安定したストリーミングを実現するため、転送速度2.5Gbps以上の帯域を持つUSB-Cケーブル（図\ref{fig:cable}）を使用した。
 
 \begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=100mm]{./figs/提案システム/ハードウェア/USBCケーブル.png}
-\caption[USBCケーブル]{USBCケーブル [5]．}
-\label{fig:tobita_config}
-\end{center}
+\centering
+% Meta Quest 3の図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/ハードウェア/MetaQuest3.png}
+  \caption[MetaQuest3]{MetaQuest3 [5]．}
+  \label{fig:quest3}
+\end{minipage}
+\hfill
+% USB-Cケーブルの図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/ハードウェア/USBCケーブル.png}
+  \caption[USBCケーブル]{USBCケーブル [5]．}
+  \label{fig:cable}
+\end{minipage}
+
 \end{figure}
 
+ここで、本文中で言及した使用機材の主要仕様を表\ref{table:hardware_tools}にまとめる。
+
+% Meta Quest 3 のスペック表
+\begin{table}[htbp]
+  \caption[Meta Quest 3の仕様]
+  {実験に使用したHMD (Meta Quest 3) の主な仕様}
+  \label{table:quest3_spec}
+  \centering
+  \begin{tabular}{lll}
+  \hline
+  \multicolumn{1}{|l||}{分類} & \multicolumn{1}{l|}{項目} & \multicolumn{1}{l|}{仕様} \\ \hline \hline
+  \multicolumn{1}{|l||}{General}  & \multicolumn{1}{l|}{Model}  & \multicolumn{1}{l|}{Meta Quest 3}  \\ \hline
+  \multicolumn{1}{|l||}{Processor}  & \multicolumn{1}{l|}{SoC}  & \multicolumn{1}{l|}{Snapdragon XR2 Gen 2}  \\ \hline
+  \multicolumn{1}{|l||}{Display} & \multicolumn{1}{l|}{Resolution} & \multicolumn{1}{l|}{2064 $\times$ 2208 pixels per eye} \\ \hline
+  \multicolumn{1}{|l||}{Display}  & \multicolumn{1}{l|}{Refresh Rate}  & \multicolumn{1}{l|}{90 Hz / 120 Hz}  \\ \hline
+  \multicolumn{1}{|l||}{Optics}  & \multicolumn{1}{l|}{Field of View}  & \multicolumn{1}{l|}{110$^\circ$ (H) / 96$^\circ$ (V)}  \\ \hline
+  \multicolumn{1}{|l||}{Memory}  & \multicolumn{1}{l|}{RAM}  & \multicolumn{1}{l|}{8 GB}  \\ \hline
+  \multicolumn{1}{|l||}{Camera}  & \multicolumn{1}{l|}{Passthrough}  & \multicolumn{1}{l|}{Full-color (4 MP, 18 PPD)}  \\ \hline
+  \end{tabular}
+\end{table}
+
+% ケーブルのスペック表
+\begin{table}[htbp]
+  \caption[USBケーブルの仕様]
+  {HMDとPCの接続に使用したUSBケーブルの仕様}
+  \label{table:cable_spec}
+  \centering
+  \begin{tabular}{lll}
+  \hline
+  \multicolumn{1}{|l||}{分類} & \multicolumn{1}{l|}{項目} & \multicolumn{1}{l|}{仕様} \\ \hline \hline
+  \multicolumn{1}{|l||}{Interface}  & \multicolumn{1}{l|}{Connector Type}  & \multicolumn{1}{l|}{USB Type-C to Type-C}  \\ \hline
+  \multicolumn{1}{|l||}{Standard}  & \multicolumn{1}{l|}{USB Standard}  & \multicolumn{1}{l|}{USB 3.2 Gen 1}  \\ \hline
+  \multicolumn{1}{|l||}{Performance} & \multicolumn{1}{l|}{Max Transfer Rate} & \multicolumn{1}{l|}{5 Gbps} \\ \hline
+  \multicolumn{1}{|l||}{Physical}  & \multicolumn{1}{l|}{Length}  & \multicolumn{1}{l|}{5.0 m}  \\ \hline
+  \multicolumn{1}{|l||}{Material}  & \multicolumn{1}{l|}{Core Type}  & \multicolumn{1}{l|}{Optical Fiber}  \\ \hline
+  \end{tabular}
+\end{table}
+
+ネットワーク環境として、本研究ではローカルエリアネットワーク（LAN）内での運用を想定し、スマートフォン（図\ref{fig:smartphone}）のテザリング機能を用いてPCとHMDを同一ネットワークに接続した。なお、スマートフォン再起動等によるIPアドレスの変更に対応するため、開発機側で固定IP設定もしくは動的IPの確認手順を確立して運用した。
+
+% スマートフォンの図
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/ハードウェア/スマートフォン.png}
 \caption[スマートフォン]{スマートフォン [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:smartphone}
 \end{figure}
 
-[表1: 開発および実行に使用したハードウェアスペック一覧] （ここにPCのCPU/GPU/メモリ構成、Quest 3の仕様、スマートフォンの機種名を記載する表を挿入）
+本実験で使用したスマートフォンの主な仕様を表\ref{table:smartphone_spec}に示す。
+
+% スマートフォンのスペック表
+\begin{table}[htbp]
+  \caption[スマートフォンの仕様]
+  {使用したスマートフォンの仕様一覧}
+  \label{table:smartphone_spec}
+  \centering
+  \begin{tabular}{lll}
+  \hline
+  \multicolumn{1}{|l||}{分類} & \multicolumn{1}{l|}{項目} & \multicolumn{1}{l|}{仕様} \\ \hline \hline
+  \multicolumn{1}{|l||}{Device}  & \multicolumn{1}{l|}{Model Name}  & \multicolumn{1}{l|}{Google Pixel 7a}  \\ \hline
+  \multicolumn{1}{|l||}{System}  & \multicolumn{1}{l|}{OS Version}  & \multicolumn{1}{l|}{Android 13}  \\ \hline
+  \multicolumn{1}{|l||}{Network} & \multicolumn{1}{l|}{Wi-Fi Standard} & \multicolumn{1}{l|}{IEEE 802.11ax (Wi-Fi 6E)} \\ \hline
+  \multicolumn{1}{|l||}{Network}  & \multicolumn{1}{l|}{Tethering Band}  & \multicolumn{1}{l|}{5 GHz / 2.4 GHz}  \\ \hline
+  \multicolumn{1}{|l||}{Hardware}  & \multicolumn{1}{l|}{Processor (SoC)}  & \multicolumn{1}{l|}{Google Tensor G2}  \\ \hline
+  \multicolumn{1}{|l||}{Hardware}  & \multicolumn{1}{l|}{Memory (RAM)}  & \multicolumn{1}{l|}{8 GB}  \\ \hline
+  \end{tabular}
+\end{table}
 
 \subsection{ソフトウェア}
 
-本システムのソフトウェア開発環境は、Unityを統合開発環境の中核とし、Meta社が提供するXR開発キットおよびサードパーティ製のライブラリ群によって構成されている。主要な開発プラットフォームとしてUnity（バージョン：[表2参照]）を使用し、Meta Quest 3のパススルー機能や空間認識機能を利用するためにMeta XR All-in-One SDKおよびOpenXRプラグインを導入した。UI構築には、QuestのシステムUIと親和性の高いMeta Horizon OS UI Setを採用した。 本システムの核となる動的コード実行（ホットアップデート）には、C\#インタープリタフレームワークであるHybridCLRを利用し、QRコードの認識にはZXing.unityを採用した。また、音声認識機能の実装にはMeta Wit.aiを活用している。実機へのデプロイおよび画面収録、デバッグには、Meta Quest Developer Hub (MQDH) およびMeta Quest Linkを使用した。 サーバサイドは、Unityと開発言語（C\#）を統一するため、ASP.NET Coreを用いたMinimal APIとして実装した。
+本システムのソフトウェア開発環境は、Unityを統合開発環境の中核とし、Meta社が提供するXR開発キットおよびサードパーティ製のライブラリ群によって構成されている。
 
+主要な開発プラットフォームとしてUnityを使用し、Meta Quest 3のパススルー機能や空間認識機能を利用するためにMeta XR All-in-One SDKおよびOpenXRプラグインを導入した。これにより、高精度なパススルー機能や空間アンカー、ハンドトラッキングといった固有機能へのアクセスを可能にしている。同時に、標準規格であるOpenXR Pluginを併用することで、将来的なデバイス互換性と拡張性を担保した。ユーザーインターフェース（UI）の構築においては、Meta Horizon OS UI Set（図\ref{fig:uiset}）を採用した。Questのシステム標準UIと親和性の高いデザインコンポーネントを使用することで、ユーザーに対して違和感のない、直感的な操作体験を提供することを目的としている。
+
+% UI Setの図
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/ソフトウェア/MetaHorizonOSUISet.png}
 \caption[MetaHorizonOSUISet]{MetaHorizonOSUISet [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:uiset}
 \end{figure}
 
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=100mm]{./figs/提案システム/ソフトウェア/MQDH.png}
-\caption[MQDH]{MQDH [5]．}
-\label{fig:tobita_config}
-\end{center}
-\end{figure}MetaHorizonOSUISet
+また、本システムのアーキテクチャ上の特徴として、動的なコード実行（ホットアップデート）機能の実装が挙げられる。通常のUnity IL2CPPビルドでは困難な、実行時のロジック更新を実現するため、C\#インタープリタフレームワークであるHybridCLRを組み込んだ。これにより、実機への再インストールを行うことなく機能の拡張が可能となり、開発サイクルの大幅な効率化を実現している。その他、外部入力機能として、QRコード認識には軽量かつ高速なZXing.unityを、音声コマンド認識にはMeta Wit.aiを活用した。
+
+本システムの開発および実装に使用した主要なプラグインとライブラリ一覧を表\ref{table:dev_tools_spec}に示す。
+
+% Unityとツールの表
+\begin{table}[htbp]
+  \caption[開発環境およびライブラリ構成]
+  {本システムで使用した開発環境およびライブラリのバージョン一覧}
+  \label{table:dev_tools_spec}
+  \centering
+  \begin{tabular}{lll}
+  \hline
+  \multicolumn{1}{|l||}{分類} & \multicolumn{1}{l|}{名称} & \multicolumn{1}{l|}{バージョン} \\ \hline \hline
+  \multicolumn{1}{|l||}{Platform}  & \multicolumn{1}{l|}{Unity}  & \multicolumn{1}{l|}{6000.0.62f1}  \\ \hline
+  \multicolumn{1}{|l||}{XR Plugin}  & \multicolumn{1}{l|}{Meta XR All-in-One SDK}  & \multicolumn{1}{l|}{v81}  \\ \hline
+  \multicolumn{1}{|l||}{XR Plugin} & \multicolumn{1}{l|}{OpenXR Plugin} & \multicolumn{1}{l|}{v1.1.54} \\ \hline
+  \multicolumn{1}{|l||}{Library}  & \multicolumn{1}{l|}{HybridCLR}  & \multicolumn{1}{l|}{v8.5.0}  \\ \hline
+  \multicolumn{1}{|l||}{Library}  & \multicolumn{1}{l|}{ZXing.unity}  & \multicolumn{1}{l|}{v3.5.4}  \\ \hline
+  \end{tabular}
+\end{table}
+
+実機へのデプロイ、パフォーマンス監視、および画面収録などのデバイス管理プロセスには、公式の統合開発ツールであるMeta Quest Developer Hub（図\ref{fig:mqdh}）を使用した。また、PC側でのレンダリング検証やUnityエディタのPlay Modeを活用した迅速なデバッグを行うため、Meta Horizon Link（図\ref{fig:link}）による有線接続環境を構築した。
 
 \begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=100mm]{./figs/提案システム/ソフトウェア/MetaHorizonLink.png}
-\caption[MetaHorizonLink]{MetaHorizonLink [5]．}
-\label{fig:tobita_config}
-\end{center}
+\centering
+% MQDHの図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/ソフトウェア/MQDH.png}
+  \caption[Meta Quest Developer Hub]{Meta Quest Developer Hub [5]．}
+  \label{fig:mqdh}
+\end{minipage}
+\hfill
+% Linkの図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/ソフトウェア/MetaHorizonLink.png}
+  \caption[Meta Horizon Link]{Meta Horizon Link [5]．}
+  \label{fig:link}
+\end{minipage}
 \end{figure}
 
-[表2: 使用したソフトウェアおよびライブラリのバージョン一覧] （Unity, Meta SDK, HybridCLR, WitAI, ZXing, OpenXR等のバージョンを記載する表を挿入）
+サーバサイドの実装においては、クライアントサイド（Unity）と主要開発言語をC\#に統一することで、データモデルの共有やコンテキストスイッチの低減を図るため、ASP.NET Coreを採用した。特に、軽量かつ高速なレスポンスが求められるため、Minimal API構成で実装している。
+
+コーディングおよびデバッグ環境には、軽量かつ拡張性に優れたVisual Studio Codeを選定した。Microsoft社が提供するC\# Dev KitおよびUnity拡張機能を導入することで、コード補完やブレークポイントによるデバッグ効率を最大化した。
+
+本システムの開発および実装に使用した主要なソフトウェア開発環境一覧を表\ref{table:software_env}に示す。
+
+% ソフトウェア開発環境の表
+\begin{table}[htbp]
+  \caption[開発支援ツールおよびサーバ環境]
+  {デバッグツール、サーバフレームワークおよびエディタのバージョン一覧}
+  \label{table:software_env}
+  \centering
+  \begin{tabular}{lll}
+  \hline
+  \multicolumn{1}{|l||}{分類} & \multicolumn{1}{l|}{名称} & \multicolumn{1}{l|}{バージョン} \\ \hline \hline
+  \multicolumn{1}{|l||}{Tool}  & \multicolumn{1}{l|}{Meta Quest Developer Hub}  & \multicolumn{1}{l|}{v3.2}  \\ \hline
+  \multicolumn{1}{|l||}{Tool}  & \multicolumn{1}{l|}{Meta Horizon Link}  & \multicolumn{1}{l|}{v83.0.0.224.349}  \\ \hline
+  \multicolumn{1}{|l||}{Framework} & \multicolumn{1}{l|}{ASP.NET Core} & \multicolumn{1}{l|}{v10.0.1} \\ \hline
+  \multicolumn{1}{|l||}{Editor}  & \multicolumn{1}{l|}{Visual Studio Code}  & \multicolumn{1}{l|}{v1.108}  \\ \hline
+  \end{tabular}
+\end{table}
 
 \section{システム構成}
 
-本節では、提案システムの具体的な構成要素と、それらが連携するアーキテクチャについて詳細に述べる。提案システムは大きく分けて、(1)キュレーターが展示コンテンツを制作および出力するためのUnityプロジェクト「ARShowNode」、(2)鑑賞者が使用する閲覧用アプリケーション「ARShow」、(3)コンテンツを保持かつ配信する「静的ファイルサーバ」の三つ要素から構成される。
+本節では、提案システムの具体的な構成要素と、それらが連携するアーキテクチャについて詳細に述べる。
+提案システムは大きく分けて、
+\begin{itemize}
+    \item キュレーターが展示コンテンツを制作および出力するためのUnityプロジェクト「ARShowNode」
+    \item 鑑賞者が使用する閲覧用アプリケーション「ARShow」
+    \item コンテンツを保持かつ配信する「静的ファイルサーバ」
+\end{itemize}
+の三つ要素から構成される。提案システムの全体構成を図\ref{fig:system_overview}に示す。
 
+% 提案システムの全体構成図
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/提案システムの全体構成図.png}
 \caption[提案システムの全体構成図]{提案システムの全体構成図 [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:system_overview}
 \end{figure}
-
-[図1: 提案システムの全体構成図] （ARShowNodeでの制作、サーバへのアップロード、ARShowアプリでのQRスキャンとダウンロードの流れを示す図を挿入）
 
 \subsection{ARShowNode}
 
-ARShowNodeは、キュレーター（制作者）向けに提供されるUnityプロジェクトおよびツールキットである。本プロジェクトは、AR展品を「Node」という単位（Unity AssetBundle）で管理し、各Nodeには3Dモデル、音声、映像、および動的ロジック（C\#スクリプト）が含まれる。
+ARShowNodeは、キュレーター（制作者）向けに提供されるUnityプロジェクトである（図\ref{fig:arshownode_global}）。本プロジェクトは、AR展品（Node）を単位（AssetBundle）として管理し、各Nodeには3Dモデル、音声、映像、および動的ロジック（C\#スクリプト）が含まれる。
 
+% ARShowNode Unityプロジェクトの全体図
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/ARShowNode/ARShowNodeGlobal.png}
 \caption[ARShowNodeGlobal]{ARShowNodeGlobal [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:arshownode_global}
 \end{figure}
 
 \subsubsection{HybridCLR}
 
-本システムにおける技術的な核心は、HybridCLRの採用にある。通常のUnity製アプリ（IL2CPPビルド）では、ビルド後にC\#スクリプトの挙動を変更することは不可能である。しかし、HybridCLRを導入することで、C\#コードをコンパイルしたDLLをアセットとして扱い、実行時にインタープリタモードでロードして実行することが可能となる。ARShowNodeでは、キュレーターが記述したスクリプトをHybridCLRによってAOT（Ahead-Of-Time）メタデータとホットアップデート用DLLに変換し、これらをAssetBundleに含めることで、アプリ本体の更新を伴わない展示ロジックの配信を実現している。
+本システムにおける技術的な核心は、HybridCLRの採用にある。通常のUnity製アプリ（IL2CPPビルド）では、ビルド後にC\#スクリプトの挙動を変更することは不可能である。しかし、HybridCLRを導入することで、C\#コードをコンパイルしたDLLをアセットとして扱い、実行時にインタープリタモードでロードして実行することが可能となる（図\ref{fig:hybridclr_tool}）。ARShowNodeでは、キュレーターが記述したスクリプトをHybridCLRによってAOT（Ahead-Of-Time）メタデータとホットアップデート用DLLに変換し、これらをAssetBundleに含めることで、アプリ本体の更新を伴わない展示ロジックの配信を実現している。
 
 \begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=100mm]{./figs/提案システム/ARShowNode/HybridCLRTool.png}
-\caption[HybridCLRTool]{HybridCLRTool [5]．}
-\label{fig:tobita_config}
-\end{center}
+\centering
+% HybridCLRツールの図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/ARShowNode/HybridCLRTool.png}
+  \caption[HybridCLRTool]{HybridCLRTool [5]．}
+  \label{fig:hybridclr_tool}
+\end{minipage}
+\hfill
+% 提案されたUnityツールの図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/ARShowNode/ARShowTool.png}
+  \caption[ARShowTool]{ARShowTool [5]．}
+  \label{fig:arshow_tool}
+\end{minipage}
 \end{figure}
 
 \subsubsection{制作のための Unity ツール}
 
-本研究では、キュレーターの作業負荷を軽減するため、ARShowNodeプロジェクト内に専用のUnityエディタ拡張ツールを実装した。このツールはメニューバーからアクセス可能であり、以下の4つの機能を順次実行することで展示データの配信を行う。
+本研究では、キュレーターの作業負荷を軽減するため、ARShowNodeプロジェクト内に専用のUnityエディタ拡張ツールを実装した（図\ref{fig:arshow_tool}）。このツールはメニューバーからアクセス可能であり、以下の4つの機能を順次実行することで展示データの配信を行う。
 
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=100mm]{./figs/提案システム/ARShowNode/ARShowTool.png}
-\caption[ARShowTool]{ARShowTool [5]．}
-\label{fig:tobita_config}
-\end{center}
-\end{figure}
-
-DLLの複製: HybridCLRによって生成されたAOTメタデータのDLLおよびホットアップデートのDLLを、Unityプロジェクト内のAssetsディレクトリへコピーする。複数作品（Node）を同時制作する場合、各Nodeに対応したDLLを複製する。
-
-AssetBundleのビルド: 事前に設定されたラベル（Node0, Node1...等の識別子）に基づき、各作品のリソースとDLLを含んだAssetBundleを生成する。
-
-QRコード生成: 各AssetBundleの識別子（Node名）情報を格納したQRコード画像を自動生成する。
-
-アップロード: 生成されたAssetBundle群を、稼働中の静的ファイルサーバへ一括アップロードする。
-
-[図2: 実装したUnityツールのメニューと操作画面] （Unityエディタ上のドロップダウンメニューと、生成されたAssetBundle等のファイル構成を示すスクリーンショットを挿入）
+\begin{enumerate}
+    \item \textbf{DLLの複製}: HybridCLRによって生成されたAOTメタデータのDLLおよびホットアップデートのDLLを、Unityプロジェクト内のAssetsディレクトリへコピーする。複数作品（Node）を同時制作する場合、各Nodeに対応したDLLを複製する。
+    \item \textbf{AssetBundleのビルド}: 事前に設定されたラベル（Node0, Node1...等の識別子）に基づき、各作品のリソースとDLLを含んだAssetBundleを生成する。
+    \item \textbf{QRコード生成}: 各AssetBundleの識別子（Node名）情報を格納したQRコード画像を自動生成する。
+    \item \textbf{アップロード}: 生成されたAssetBundle群を、稼働中の静的ファイルサーバへ一括アップロードする。
+\end{enumerate}
 
 \subsubsection{Node}
 
-「Node」は、本システムにおける1つの展示作品単位であり、1つのAssetBundleに対応する。各Nodeは、展示物の実体であるPrefab、関連する設定ファイル、メディアアセット（画像、音響）、および制御用スクリプトの集合体である。本研究では、同一Unityプロジェクト内で複数のNode（Node0, Node1, Node2...）を並行して制作と管理可能な構造としている。
+「Node」は、本システムにおける展示作品の単位であり、1つのAssetBundleに対応している。各Nodeは、展示物の実体であるPrefab、関連する設定ファイル、メディアアセット（画像、音響）、および制御用スクリプトのアセンブリの集合体である。本研究では、図\ref{fig:node_global}に示すように、同一Unityプロジェクト内で複数のNode（Node0, Node1, Node2...）を並行して制作と管理可能な構造としている。
 
+% 三つNodeの全体図
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/Node/NodeGlobal.png}
 \caption[NodeGlobal]{NodeGlobal [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:node_global}
 \end{figure}
 
 \subsubsection{エントリポイント (Entry.cs)}
 
-動的にロードされたスクリプトを、実行時（Runtime）に正しくゲームオブジェクトにアタッチし機能させるため、本システムでは「Entry.cs」という規約に基づいたエントリポイントスクリプトを導入した。 通常のUnity開発ではInspector上でスクリプトをアタッチするが、別プロジェクトでビルドされたAssetBundle内のスクリプトを復元する場合、GUIDの不整合等により参照が切れる問題がある。これを回避するため、本システムではHybridCLRの推奨手法に基づき、実行時に GameObject.AddComponentメソッドを介してスクリプトを動的に付与する方式を採用した。Entry.csは各Nodeの初期化ロジックを担い、AssetBundleのロード完了後、ARShowアプリ側から明示的に呼び出されることで、Prefabのインスタンス化や依存コンポーネントのセットアップを実行する。
+動的にロードされたスクリプトを、実行時（Runtime）に正しくゲームオブジェクトにアタッチし機能させるため、本システムでは「Entry.cs」という規約に基づいたエントリポイントスクリプトを導入した（図\ref{fig:entry_global}）。
+
+Entry.csは各Nodeの初期化ロジックを担い、AssetBundleのロード完了後、ARShowアプリ側から明示的に呼び出されることで、Prefabのインスタンス化や依存コンポーネントのセットアップを実行する。実装コードの一部を図\ref{fig:entry_code}に示す。
 
 \begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=100mm]{./figs/提案システム/ARShowNode/EntryGlobal.png}
-\caption[EntryGlobal]{EntryGlobal [5]．}
-\label{fig:tobita_config}
-\end{center}
+\centering
+% 三つNodeに分けるEntry.csの全体図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/ARShowNode/EntryGlobal.png}
+  \caption[EntryGlobal]{EntryGlobal [5]．}
+  \label{fig:entry_global}
+\end{minipage}
+\hfill
+% Entry.csのコードの一部図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/ARShowNode/EntryCode.png}
+  \caption[EntryCode]{EntryCode [5]．}
+  \label{fig:entry_code}
+\end{minipage}
 \end{figure}
 
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=100mm]{./figs/提案システム/ARShowNode/EntryCode.png}
-\caption[EntryCode]{EntryCode [5]．}
-\label{fig:tobita_config}
-\end{center}
-\end{figure}
+通常のUnity開発ではInspector上でスクリプトをアタッチするが、別プロジェクトでビルドされたAssetBundle内のスクリプトを復元する場合、GUIDの不整合等により参照が切れる問題がある。これを回避するため、本システムではHybridCLRの推奨手法に基づき、実行時に「GameObject.AddComponent」メソッドを介してスクリプトを動的に付与する方式を採用した。
 
 \subsubsection{AssetBundle}
 
-UnityのAssetBundle機能を利用し、Nodeごとのリソースとコードをパッケージ化している。前述の通り、本システムではAssetBundle内にHybridCLR用のDLLを含める点が特徴である。これにより、3Dモデルやテクスチャだけでなく、インタラクション等の「振る舞い」も含めた完全な展示パッケージとして配信される。
+UnityのAssetBundle機能を利用し、Nodeごとのリソースとコードをパッケージ化している。前述の通り、本システムではAssetBundle内にHybridCLR用のDLLを含める点が特徴である（図\ref{fig:assetbundle_global}）。これにより、3Dモデルやテクスチャだけでなく、インタラクション等の仕組みも含めた完全な展示パッケージとして配信される。
 
+% 提案されたUnityツールにより生成したAssetBundleの例
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/ARShowNode/AssetBundleGlobal.png}
 \caption[AssetBundleGlobal]{AssetBundleGlobal [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:assetbundle_global}
 \end{figure}
 
 \subsubsection{WitAI}
 
-音声操作を実現するため、Meta社が提供する自然言語処理サービスWit.aiを導入した。Node内で音声認識が必要な場合、ユーザーの音声入力はMeta XR Voice SDKを通じてテキスト化され、Wit.aiサーバへ送信される。サーバ上で事前に定義されたインテント（意図）やエンティティ（Entity）の解析が行われ、その結果に基づいてUnity側の関数がトリガーされる仕組みである。本研究では、中国語による音声コマンド制御の事例を実装した。
+音声操作を実現するため、Meta社が提供する自然言語処理サービスWit.aiを導入した（図\ref{fig:witai_config}）。Node内で音声認識が必要な場合、ユーザーの音声入力はMeta XR Voice SDKを通じてテキスト化され、Wit.aiサーバへ送信される。サーバ上で事前に定義されたインテント（Intent）やエンティティ（Entity）の解析が行われ、その結果に基づいてUnity側の関数がトリガーされる仕組みである。本研究では、中国語による音声コマンド制御の事例を実装した。
 
+% WitAI配置図
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/ARShowNode/WitAI配置.png}
 \caption[WitAI配置]{WitAI配置 [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:witai_config}
 \end{figure}
 
 \subsection{ARShow}
 
-ARShowは、Meta Quest 3上で動作する鑑賞者用アプリケーションである。本アプリは、QRコードのスキャン、AssetBundleのダウンロード、および動的コンテンツの再生環境を提供するコンテナとして機能する。
+ARShowは、Meta Quest 3上で動作する鑑賞者用アプリケーションである（図\ref{fig:arshow_global}）。本アプリは、QRコードのスキャン、AssetBundleのダウンロード、および動的コンテンツの再生環境を提供するコンテナとして機能する。
 
+% ARShow Unityプロジェクトの全体図
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/ARShow/ARShowGlobal.png}
 \caption[ARShowGlobal]{ARShowGlobal [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:arshow_global}
 \end{figure}
 
 \subsubsection{スキャンモード}
 
-アプリ起動後、ユーザーはUI上の「ScanQr」ボタンを押下することでスキャンモードへ移行する。このモードでは、パススルーカメラの映像上にQRコード検出用のガイドが表示され、認識待機状態となる。
+アプリ起動後、ユーザーはUI上の「ScanQr」ボタンを押下することでスキャンモードへ移行する（図\ref{fig:scan_qr_button}）。このモードでは、パススルーカメラの映像上にQRコード検出用のガイドが表示され、認識待機状態となる。
 
+% ScanQrボタンの図
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/ARShow/ScanQrボタン.png}
 \caption[ScanQrボタン]{ScanQrボタン [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:scan_qr_button}
 \end{figure}
 
-\subsubsection{QR Code 検出}
+\subsubsection{QR Code検出}
 
-QRコードの認識には ZXing.unity ライブラリを使用し、Quest 3のカメラ映像からフレームごとの解析を行う。有効なQRコード（AssetBundleの識別子）が検出されると、スキャンモードを終了し、コンテンツのロード処理へ移行する。同一のQRコードを再スキャンした場合は、重複ロードを避けるためコンソールへ警告を表示する等の制御を行っている。
+QRコードの認識にはZXing.unityライブラリを使用し、Quest 3のカメラ映像からフレームごとの解析を行う。有効なQRコード（AssetBundleの識別子）が検出されると、スキャンモードを終了し、コンテンツのロード処理へ移行する。同一のQRコードを再スキャンした場合は、重複ロードを避けるためコンソールへ警告を表示する等の制御を行っている。
 
 \subsubsection{アセットロード}
 
-識別子に基づき、サーバから該当するAssetBundleをダウンロードする。ダウンロード中は、QRコードの物理位置にプログレスバー（進捗率）を空間表示し、ユーザーへのフィードバックを行う。 ダウンロード完了後、システムは以下の手順でアセットを展開する。
+識別子に基づき、サーバから該当するAssetBundleをダウンロードする。ダウンロード中は、QRコードの物理位置にプログレスバー（進捗率）を空間表示し、ユーザーへのフィードバックを行う。初AssetBundleのダウンロードプログレスが図\ref{fig:node0_progress}に示され、後続のものが図\ref{fig:node2_progress}に示される。
 
 \begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=100mm]{./figs/提案システム/Node/Node0Progress.png}
-\caption[Node0Progress]{Node0Progress [5]．}
-\label{fig:tobita_config}
-\end{center}
+\centering
+% 初のAssetBundleダウンロードプログレスの図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/Node/Node0Progress.png}
+  \caption[Node0Progress]{Node0Progress [5]．}
+  \label{fig:node0_progress}
+\end{minipage}
+\hfill
+% 後続のAssetBundleダウンロードプログレスの図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/Node/Node2Progress.png}
+  \caption[Node2Progress]{Node2Progress [5]．}
+  \label{fig:node2_progress}
+\end{minipage}
 \end{figure}
 
+ダウンロード完了後、システムは以下の手順でアセットを展開する。
+
+\begin{enumerate}
+    \item AssetBundleからHybridCLR用のAOTメタデータDLLをメモリ上に展開し、IL2CPPランタイムに登録する。
+    \item ホットアップデート用DLLをロードする。
+    \item ロードされたアセンブリ内から Entry.cs のエントリポイントメソッドをリフレクションを用いて呼び出す。
+\end{enumerate}
+
+これにより、図\ref{fig:node0_ui}に示すようにAR展品がシーン内に初期化され、インタラクションが開始される。
+
+% Node0のUIの図
 \begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=100mm]{./figs/提案システム/Node/Node2Progress.png}
-\caption[Node2Progress]{Node2Progress [5]．}
-\label{fig:tobita_config}
-\end{center}
-\end{figure}
-
-1、AssetBundleからHybridCLR用のAOTメタデータDLLをメモリ上に展開し、IL2CPPランタイムに登録する。
-
-2、ホットアップデート用DLLをロードする。
-
-3、ロードされたアセンブリ内から Entry.cs のエントリポイントメソッドをリフレクションを用いて呼び出す。 これにより、AR展品がシーン内に初期化され、インタラクションが開始される。
-
-\begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/Node/Node0UI.png}
 \caption[Node0UI]{Node0UI [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:node0_ui}
 \end{figure}
 
-\subsubsection{AOT裁ちの防ぎ (AOT Stripping Prevention)}
+\subsubsection{AOTストリッピングの防止 (AOT Stripping Prevention)}
 
-UnityのIL2CPPビルドでは、ビルド時に使用されていないコードや型情報はファイルサイズ削減のために削除（ストリッピング）される。しかし、動的にロードされるNode側のスクリプトが、アプリ本体側で削除された型に依存している場合、実行時エラーが発生する。これを防ぐため、本システムでは link.xml ファイルを定義し、Nodeで使用する可能性のあるアセンブリや型を明示的に記述することで、ビルド時のストリッピングを回避している。これにより、ARShowNodeで開発された任意のスクリプトが、ARShowアプリ上で正しく動作することを保証している。
+UnityのIL2CPPビルドでは、ビルド時に使用されていないコードや型情報はファイルサイズ削減のために削除（ストリッピング）される。しかし、動的にロードされるNode側のスクリプトが、アプリ本体側で削除された型に依存している場合、実行時エラーが発生する。
 
+これを防ぐため、本システムでは link.xml ファイルを定義し（図\ref{fig:linkxml_config}）、Nodeで使用する可能性のあるアセンブリや型を明示的に記述することで、ビルド時のストリッピングを回避している。これにより、ARShowNodeで開発された任意のスクリプトが、ARShowアプリ上で正しく動作することを保証している。
+
+% Link.xmlコードの配置図
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/ARShow/Linkxml配置.png}
 \caption[Linkxml配置]{Linkxml配置 [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:linkxml_config}
 \end{figure}
-
-[図3: アセットロードとスクリプト実行の内部シーケンス図] （ダウンロード、DLLロード、Entryメソッド実行の流れを示す図を挿入）
 
 \subsection{サーバ}
 
-AssetBundleのホスティングには、開発用PC上で動作するASP.NET Coreベースの静的ファイルサーバを用いた。本サーバはMinimal API構成で実装されており、HTTPリクエストに応じてAssetBundleファイルを提供する単純かつ高速な仕様となっている。 ARShowアプリのメニューには、このサーバの「起動」「停止」「ディレクトリ清掃」を制御する機能も統合されており、展示運用時のサーバ管理を容易にしている。なお、開発環境（ローカルLAN）においては、サーバIPアドレスをARShowアプリ側の設定と一致させる必要がある。
+AssetBundleのホスティングには、開発PC機上で動作するASP.NET Coreベースの静的ファイルサーバを用いた。本サーバはMinimal API構成で実装されており、HTTPリクエストに応じてAssetBundleファイルを提供する単純かつ高速な仕様となっている。
 
+「ARShow」プロジェクトのメニューバーには、図\ref{fig:server_tool}に示すように、このサーバの「起動」「停止」「ディレクトリ清掃」を制御する機能も統合されており、展示運用時のサーバ管理を容易にしている。なお、開発環境（ローカルLAN）においては、ARShowアプリにサーバからAssetBundleをダウンロードする用のIPアドレスを開発PC機の実際アドレースと一致させる必要がある。
+
+% 提案されたServerToolの図
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/ARShow/ServerTool.png}
 \caption[ServerTool]{ServerTool [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:server_tool}
 \end{figure}
 
-\section{UI とインタラクション}
+\section{UIとインタラクション}
 
-本節では、本システムにおいて実装された3つの代表的な展示作品（Node）を例に挙げ、鑑賞者が体験するユーザーインターフェース（UI）およびインタラクションの詳細について述べる。各Nodeはそれぞれ異なるメディア形式（複合UI、映像、3Dモデル）を扱っており、システムの汎用性を示している。
+本節では、本システムにおいて実装された3つ代表的な展示作品（Node）を例に挙げ、鑑賞者が体験するユーザーインターフェース（UI）およびインタラクションの詳細について述べる。各Nodeはそれぞれ異なるメディア形式（複合UI、映像、3Dモデル）を扱っており、システムの汎用性を示している。
 
 \subsection{Node0: 複合的なAR展示インターフェース}
 
-Node0は、本システムの中で最も機能的に複雑な展示例であり、文化財の3Dモデル表示と解説テキスト、および音声操作を組み合わせた複合的なARコンテンツである。
+Node0は、本システムの中で最も機能的に複雑な展示例であり、文化財の3Dモデル表示と解説テキスト、および音声操作を組み合わせた複合的なARコンテンツである。実際のUI表示を図\ref{fig:node0_ui}に示す。
 
+% Node0のUIの図
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/Node/Node0UI.png}
 \caption[Node0UI]{Node0UI [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:node0_ui}
 \end{figure}
 
 \subsubsection{インターフェース構成}
 
-本NodeのUIは、Meta Horizon OS UI Setをベースに構築されており、Meta Questの標準的なシステムUIと親和性の高いデザインを採用している。画面構成は主に「3Dモデル表示領域」と「操作用テキストキャンバス」の2つのモジュールから成る。テキストキャンバスは、機能に応じて以下の3つのセクションに区分されている。
+本NodeのUIは、Meta Horizon OS UI Setをベースに構築されており、Meta Questの標準的なシステムUIと親和性の高いデザインを採用している。画面構成は主に「音声のテキスト化フィードバック」と「操作用テキストキャンバス」の2つのモジュールから成る。テキストキャンバスは、機能に応じて以下の3つのセクションに区分されている。
 
-スクリーンリーダー制御: 解説音声の「再生（Play）」「一時停止（Pause）」「停止（Stop）」を行うボタン群。
-
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=100mm]{./figs/提案システム/Node/Node0UIReader.png}
-\caption[Node0UIReader]{Node0UIReader [5]．}
-\label{fig:tobita_config}
-\end{center}
-\end{figure}
-
-情報表示と設定: 文化財の解説テキストを表示するエリアおよび言語選択ドロップダウンメニュー。言語切り替えにより、テキストと読み上げ音声が即座に変更される。
-
-音声コマンド制御: 「Listen」ボタンと認識結果を表示するテキストボックス。
+\begin{itemize}
+    \item \textbf{スクリーンリーダー制御}: 図\ref{fig:node0_reader}に示すように、解説音声の「再生（Play）」「一時停止（Pause）」「停止（Stop）」を行うボタン群が配置されている。
+    \item \textbf{多国言語制御}: 文化財の解説テキストを表示するエリアおよび言語選択ドロップダウンメニューである。言語切り替えにより、テキストと読み上げ音声が即座に変更される。
+    \item \textbf{音声コマンド制御}: 「Listen」ボタンと認識結果を表示するテキストボックスから構成される（図\ref{fig:node0_listen}）。
+\end{itemize}
 
 \begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=100mm]{./figs/提案システム/Node/Node0UIListen.png}
-\caption[Node0UIListen]{Node0UIListen [5]．}
-\label{fig:tobita_config}
-\end{center}
+\centering
+% Node0ReaderボタンUIの図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/Node/Node0UIReader.png}
+  \caption[Node0UIReader]{Node0UIReader [5]．}
+  \label{fig:node0_reader}
+\end{minipage}
+\hfill
+% Node0ListenボタンUIの図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/Node/Node0UIListen.png}
+  \caption[Node0UIListen]{Node0UIListen [5]．}
+  \label{fig:node0_listen}
+\end{minipage}
 \end{figure}
 
 \subsubsection{インタラクション}
 
 鑑賞者は、ハンドトラッキング機能を用いた以下のように直感的な操作が可能である。
 
-1、タッチ操作（Poke）: 仮想ボタンを指先で直接押すことで、再生制御やモード切替を行う。
+\begin{itemize}
+    \item \textbf{タッチ操作（Poke）}: 仮想ボタンを指先で直接押すことで、再生制御やモード切替を行う（図\ref{fig:node0_poke}）。
+    \item \textbf{遠隔操作（Ray）}: 手から発せられるレイ（光線）を用いて、離れた位置にあるUI要素を選択と操作する（図\ref{fig:node0_ray}）。
+    \item \textbf{把持操作（Grab）}: UIパネルや3Dモデルを「掴む」ジェスチャにより、鑑賞しやすい位置や角度へ自由に移動させることができる（図\ref{fig:node0_grab}）。
+\end{itemize}
 
 \begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=100mm]{./figs/提案システム/Node/Node0UIPoke.png}
-\caption[Node0UIPoke]{Node0UIPoke [5]．}
-\label{fig:tobita_config}
-\end{center}
+\centering
+% Node0ボタンUIのPoke図
+\begin{minipage}{0.32\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/Node/Node0UIPoke.png}
+  \caption[Node0UIPoke]{Node0UIPoke [5]．}
+  \label{fig:node0_poke}
+\end{minipage}
+\hfill
+% Node0ボタンUIのRay図
+\begin{minipage}{0.32\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/Node/Node0UIRay.png}
+  \caption[Node0UIRay]{Node0UIRay [5]．}
+  \label{fig:node0_ray}
+\end{minipage}
+\hfill
+% Node0ボタンUIのGrab図
+\begin{minipage}{0.32\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/Node/Node0UIGrab.png}
+  \caption[Node0UIGrab]{Node0UIGrab [5]．}
+  \label{fig:node0_grab}
+\end{minipage}
 \end{figure}
 
-2、遠隔操作（Ray）: 手から発せられるレイ（光線）を用いて、離れた位置にあるUI要素を選択・操作する。
+これらのインタラクションを実現するため、技術的には PointableCanvasModule システムを利用している（図\ref{fig:pointable_canvas}）。通常、このイベントシステムはUnityシーン内に常駐する必要があるが、本システムでは動的にロードされるNode側（ARShowNode）で定義されたイベント設定を、実行時に本体アプリ（ARShow）のシーンへ正しく引き継ぐ仕組みを実装することで、スムーズな操作性を確保している。
 
+% PointableCanvasModuleの配置図
 \begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=100mm]{./figs/提案システム/Node/Node0UIRay.png}
-\caption[Node0UIRay]{Node0UIRay [5]．}
-\label{fig:tobita_config}
-\end{center}
-\end{figure}
-
-3、把持操作（Grab）: UIパネルや3Dモデルを「掴む」ジェスチャにより、鑑賞しやすい位置や角度へ自由に移動させることができる。
-
-\begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=100mm]{./figs/提案システム/Node/Node0UIGrab.png}
-\caption[Node0UIGrab]{Node0UIGrab [5]．}
-\label{fig:tobita_config}
-\end{center}
-\end{figure}
-
-これらのインタラクションを実現するため、技術的には PointableCanvasModule システムを利用している。通常、このイベントシステムはUnityシーン内に常駐する必要があるが、本システムでは動的にロードされるNode側（ARShowNode）で定義されたイベント設定を、実行時に本体アプリ（ARShow）のシーンへ正しく引き継ぐ仕組みを実装することで、スムーズな操作性を確保している。
-
-\begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/ARShow/PointableCanvasModule.png}
 \caption[PointableCanvasModule]{PointableCanvasModule [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:pointable_canvas}
 \end{figure}
 
 \subsubsection{音声コマンド制御}
 
-「Speak」ボタンを押下すると音声認識モードへ移行し、Wit.aiを介したボイスコマンドによる操作が可能となる。例えば、所定のキーワードを発話することで、ボタン操作なしに解説の再生や言語変更を行うことができる。認識された発話内容はUI上にテキストとしてフィードバックされ、確実な入力を支援する。
+「Listen」ボタンを押下すると音声認識モードへ移行し、Wit.aiを介したボイスコマンドによる操作が可能となる。図\ref{fig:voice_ignore}と図\ref{fig:voice_status}に示すように、システムは待機状態（Ignore）から聞き取り状態（Listen）へと遷移する。
 
 \begin{figure}[htbp]
-\begin{center}
-\includegraphics[width=100mm]{./figs/提案システム/Node/Node0SpeakTrans.png}
-\caption[Node0SpeakTrans]{Node0SpeakTrans [5]．}
-\label{fig:tobita_config}
-\end{center}
+\centering
+% Node0のVoiceIgnoreStatus図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/Node/Node0VoiceIgnoreStatus.png}
+  \caption[Node0VoiceIgnoreStatus]{Node0VoiceIgnoreStatus [5]．}
+  \label{fig:voice_ignore}
+\end{minipage}
+\hfill
+% Node0のVoiceListenStatus図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/Node/Node0VoiceListenStatus.png}
+  \caption[Node0VoiceListenStatus]{Node0VoiceListenStatus [5]．}
+  \label{fig:voice_status}
+\end{minipage}
 \end{figure}
 
-[図4: Node0のインターフェース構成（第一人称視点）] （解説パネル、操作ボタン、3Dモデルの配置を示したARビューのスクリーンショットを挿入）
+例えば、所定のキーワードを発話することで、ボタン操作なしに解説の再生や言語変更を行うことができる。認識された発話内容は左側UIモジュールにテキストとしてフィードバックされ、確実な入力を支援する。
+
+図\ref{fig:voice_rec_ch}と図\ref{fig:voice_rec_en}に中国語および英語の言語に切り替えす結果を示す。
+
+\begin{figure}[htbp]
+\centering
+% Node0のVoiceNviChの図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/Node/Node0VoiceNviCh.png}
+  \caption[Node0VoiceNviCh]{Node0VoiceNviCh [5]．}
+  \label{fig:voice_rec_ch}
+\end{minipage}
+\hfill
+% Node0のVoiceNviEnの図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/Node/Node0VoiceNviEn.png}
+  \caption[Node0VoiceNviEn]{Node0VoiceNviEn [5]．}
+  \label{fig:voice_rec_en}
+\end{minipage}
+\end{figure}
+
+図\ref{fig:voice_start}と図\ref{fig:voice_stop}に音声コマンドによる再生開始と停止の挙動を示す。
+
+\begin{figure}[htbp]
+\centering
+% Node0のVoicePlayStart図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/Node/Node0VoicePlayStart.png}
+  \caption[Node0VoicePlayStart]{Node0VoicePlayStart [5]．}
+  \label{fig:voice_start}
+\end{minipage}
+\hfill
+% Node0のVoicePlayStop図
+\begin{minipage}{0.48\textwidth}
+  \centering
+  \includegraphics[width=\linewidth]{./figs/提案システム/Node/Node0VoicePlayStop.png}
+  \caption[Node0VoicePlayStop]{Node0VoicePlayStop [5]．}
+  \label{fig:voice_stop}
+\end{minipage}
+\end{figure}
 
 \subsection{Node1: 映像コンテンツの空間配置}
 
-Node1は、映像メディアをAR空間内に配置する展示例である。Unityのプリミティブ形状であるQuad（板ポリゴン）にVideo Playerコンポーネントを付加し、独自の録画映像と音声を再生する構成となっている。本NodeにもGrabインタラクションが付与されており、鑑賞者は空中に浮かぶスクリーンを手に取り、壁面に配置したり、目の前に引き寄せて細部を確認したりといった、物理的なスクリーンと同様の取り回しが可能である。これは、動画解説パネルやデジタルサイネージとしての利用を想定した実装である。
+Node1は、映像メディアをAR空間内に配置する展示例である（図\ref{fig:node1_ui}）。Unityのプリミティブ形状であるQuad（板ポリゴン）にVideo Playerコンポーネントを付加し、独自の録画映像と音声を再生する構成となっている。本NodeにもGrabインタラクションが付与されており、鑑賞者は空中に浮かぶスクリーンを手に取り、壁面に配置したり、目の前に引き寄せて細部を確認したりといった、物理的なスクリーンと同様の取り回しが可能である。これは、動画解説パネルとしての利用を想定した実装である。
 
+% Node1のUIの図
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/Node/Node1UI.png}
 \caption[Node1UI]{Node1UI [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:node1_ui}
 \end{figure}
-
-[図5: Node1 映像コンテンツの再生と把持操作の様子] （空間に浮かぶ映像スクリーンを手で移動させている様子を示す図を挿入）
 
 \subsection{Node2: 3Dモデル（文化財）の展示}
 
-Node2は、静的な3Dオブジェクトの展示に特化した最小構成の例である。ここでは、Sketchfabより取得した青銅器の3Dモデル（glTF形式）をPrefab化し、AssetBundleとして配信している。Node1同様、Grabインタラクションが設定されており、鑑賞者は貴重な文化財モデルを仮想的に手に取り、あらゆる角度から詳細に観察することができる。このNodeは、複雑なスクリプトを含まない純粋なアセットデータも、本システムを通じて問題なく配信や操作可能であることを実証している。
+Node2は、静的な3Dオブジェクトの展示に特化した最小構成の例である（図\ref{fig:node2_ui}）。ここでは、Sketchfabより取得した青銅器の3Dモデル（glTF形式）をPrefab化し、AssetBundleとして配信している。Node1同様、Grabインタラクションが設定されており、鑑賞者は貴重な文化財モデルを仮想的に手に取り、あらゆる角度から詳細に観察することができる。このNodeは、複雑なスクリプトを含まない純粋なアセットデータも、本システムを通じて問題なく配信や操作可能であることを実証している。
 
+% Node2のUIの図
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/Node/Node2UI.png}
 \caption[Node2UI]{Node2UI [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:node2_ui}
 \end{figure}
 
 \section{ワークフロー}
@@ -425,57 +638,54 @@ Node2は、静的な3Dオブジェクトの展示に特化した最小構成の�
 
 \subsection{制作サイド（キュレーター）}
 
-キュレーター側の作業は、Unityプロジェクト「ARShowNode」を用いて行われる。
+キュレーター側の作業は、Unityプロジェクト「ARShowNode」を用いて行われる。制作から公開に至る全体のワークフローを図\ref{fig:creator_workflow}に示す。
 
+% 制作者ワークフロー図
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/制作者ワークフロー.png}
 \caption[制作者ワークフロー]{制作者ワークフロー [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:creator_workflow}
 \end{figure}
 
-\subsubsection{ARShowNode プロジェクトの配置}
+\subsubsection{ARShowNodeプロジェクトの配置}
 
 まず、キュレーターは提供される「ARShowNode」プロジェクトを開発環境に展開する。このプロジェクトには、Meta XR All-in-One SDK、HybridCLR、および本研究で開発した専用ツールキット等の依存ライブラリが事前設定されている。キュレーターは、Unityエディタ上でコンパイルエラーがない状態を確認し、自身のコンテンツ（Prefabやスクリプト）の制作を開始する。
 
-\subsubsection{Assembly のビルド}
+\subsubsection{Assemblyのビルド}
 
-作品のロジック（C\#スクリプト）をホットアップデート可能な形式に変換するため、HybridCLRのビルド機能を実行する。まず、HybridCLRメニューから Install を実行し、環境を初期化する。次にCompileDllコマンドを実行し、ターゲットプラットフォーム（Android/Quest）向けのDLL（AOTメタデータおよびホットアップデート用アセンブリ）を出力する。そしてGenerateコマンドを実行し、ブリッジコード等を生成する。
+作品のロジック（C\#スクリプト）をホットアップデート可能な形式に変換するため、HybridCLRのビルド機能を実行する。まず、HybridCLRメニューから Install を実行し、環境を初期化する。次にCompileDllコマンドを実行し、ターゲットプラットフォーム（Android）向けのDLL（AOTメタデータおよびホットアップデート用アセンブリ）を出力する。そしてGenerateコマンドを実行し、ブリッジコード等を生成する。
 
 \subsubsection{AssetBundleの事前準備}
 
 DLLのビルド完了後、上述の本研究が提供したUnityツール（ARShowTool）を用いて、以下の手順で配信準備を行う。
 
-DLLの配置: ツールメニューの「Move DLLs」を実行し、生成されたDLLファイルをUnityプロジェクトのAssetsフォルダへ複製する。
-
-バンドル設定: 各作品のリソース（Prefab, DLL等）に対し、一意のAssetBundleラベル（例: node0）を付与する。
-
-ビルド実行: ツールメニューの「Build AssetBundles」を実行する。これにより、ラベル付けされたリソースが一つのAssetBundleファイルとしてパッケージ化される。
-
-QRコード生成: ツールメニューの「Generate QR」を実行し、各AssetBundleに対応するQRコード画像を生成する。
+\begin{enumerate}
+    \item \textbf{DLLの配置}: ツールメニューの「Move DLLs」を実行し、生成されたDLLファイルをUnityプロジェクトのAssetsフォルダへ複製する。
+    \item \textbf{バンドル設定}: 各作品のリソース（Prefab, DLL等）に対し、一意のAssetBundleラベル（例: node0）を付与する。
+    \item \textbf{ビルド実行}: ツールメニューの「Build AssetBundles」を実行する。これにより、ラベル付けされたリソースが一つのAssetBundleファイルとしてパッケージ化される。
+    \item \textbf{QRコード生成}: ツールメニューの「Generate QR」を実行し、各AssetBundleに対応するQRコード画像を生成する。
+\end{enumerate}
 
 \subsubsection{サーバへのアップロード}
 
 最後に、ツールメニューの「Upload to Server」を実行する。これにより、生成された全てのAssetBundleファイルが、LAN内で稼働している静的ファイルサーバの公開ディレクトリへ自動的に転送される。以上で、展示コンテンツの公開作業は完了である。
 
-[図6: 制作サイドのワークフローとUnityツールの操作手順] （DLLビルドからサーバアップロードまでの各ステップを示すフローチャートまたはスクリーンショットを挿入）
-
 \subsection{鑑賞サイド（鑑賞者）}
 
-鑑賞者は、HMD（Meta Quest 3）を装着し、以下の手順で展示を体験する。
+鑑賞者は、HMD（Meta Quest 3）を装着し、図\ref{fig:viewer_workflow}に示す手順で展示を体験する。
 
+% 閲覧者ワークフロー図
 \begin{figure}[htbp]
-\begin{center}
+\centering
 \includegraphics[width=100mm]{./figs/提案システム/閲覧者ワークフロー.png}
 \caption[閲覧者ワークフロー]{閲覧者ワークフロー [5]．}
-\label{fig:tobita_config}
-\end{center}
+\label{fig:viewer_workflow}
 \end{figure}
 
-\subsubsection{ARShow AR APP のインストール}
+\subsubsection{ARShow AR APPのインストール}
 
-事前に、Meta Quest Developer Hub (MQDH) 等を経由して、閲覧用アプリ「ARShow」をデバイスにインストールする（将来的なストア配布も想定される）。
+事前に、Meta Quest Developer Hub (MQDH) 等を経由して、閲覧用アプリ「ARShow」をデバイスにインストールする。
 
 \subsubsection{スキャンモードによる開始}
 
@@ -485,12 +695,12 @@ QRコード生成: ツールメニューの「Generate QR」を実行し、各As
 
 QRコードの認識後、システムは以下のフローを自動的に実行する。
 
-1、ダウンロード: 解析されたIDに基づき、サーバから対応するAssetBundleをダウンロードする。進捗状況は空間上のプログレスバーで可視化される。
+\begin{enumerate}
+    \item \textbf{ダウンロード}: 解析されたIDに基づき、サーバから対応するAssetBundleをダウンロードする。進捗状況は空間上のプログレスバーで可視化される。
+    \item \textbf{アセンブリロード}: ダウンロード完了後、AssetBundle内のAOTメタデータDLLとホットアップデートDLLをメモリに展開する。
+    \item \textbf{初期化(Entry Point)}: ロードされたアセンブリ内の Entry.cs を特定し、その初期化メソッドを実行する。この段階で、展示作品のPrefabがシーン内に生成（Instantiate）され、必要なコンポーネントが動的にアタッチされる。
+    \item \textbf{登録と管理}: 生成された作品はIDと共に内部辞書に登録される。スキャンモードは終了し、鑑賞者は作品とのインタラクションが可能となる。
+\end{enumerate}
 
-2、アセンブリロード: ダウンロード完了後、AssetBundle内のAOTメタデータDLLとホットアップデートDLLをメモリに展開する。
+なお、既にロード済みのQRコードを再スキャンした場合は、重複ロードを防ぐためコンソールに警告が表示され、およびスキャンモードが解除される仕様となっている。
 
-3、初期化 (Entry Point): ロードされたアセンブリ内の Entry.cs を特定し、その初期化メソッドを実行する。この段階で、展示作品のPrefabがシーン内に生成（Instantiate）され、必要なコンポーネントが動的にアタッチされる。
-
-4、登録と管理: 生成された作品はIDと共に内部辞書に登録される。スキャンモードは終了し、鑑賞者は作品とのインタラクションが可能となる。なお、既にロード済みのQRコードを再スキャンした場合は、重複ロードを防ぐためコンソールに警告が表示され、スキャンモードが解除される仕様となっている。
-
-[図7: 鑑賞サイドのプログラム実行フロー図] （QRスキャン判定、DL処理、Assembly Load、Entry実行、完了までの処理フロー図を挿入）

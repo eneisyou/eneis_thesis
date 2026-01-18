@@ -1,4 +1,54 @@
+```txt
+Texで私の修論を書いてます。文中に言及されたツールのディテールを表として描きたいんです。あなたのタスクはその表をTexで生成して、文中の適合な位置に柔軟な話で挿入することです。できた結果を代码段に出力ください。
+今添付したテキストに言及されたツールはMeta Quest Developer Hub, Meta Horizon Link, ASP.NET Core, VS Code（Meta Quest Developer Hub:V3.2, Meta Horizon Link:V83.0.0.224.349, ASP.NET Core:V10.0.1, VS Code:V1.108）です。そのシリーズやモデル名、その他スペックをそれぞれ表にまとめてください。
+表のは以下に添付した風に書いて下さい。
+ーーー
+実機へのデプロイおよび画面収録、デバッグには、Meta Quest Developer Hub (図\ref{fig:mqdh}) およびMeta Horizon Link（図\ref{fig:link}）を使用した。サーバサイドは、Unityと開発言語（C\#）を統一するため、ASP.NET Coreを用いたMinimal APIとして実装した。コードの開発エディターにはVisual Studio Codeを使用し、Microsoft社に提供されているC\#とUnityプラグインを導入することで、デバッグを効率化した。
 
+% MQDHの図
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=100mm]{./figs/提案システム/ソフトウェア/MQDH.png}
+\caption[MQDH]{MQDH [5]．}
+\label{fig:mqdh}
+\end{figure}
+
+% Linkの図
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=100mm]{./figs/提案システム/ソフトウェア/MetaHorizonLink.png}
+\caption[MetaHorizonLink]{MetaHorizonLink [5]．}
+\label{fig:link}
+\end{figure}
+
+ーーー
+\begin{table}[htbp]
+  \caption[初期パラメータ一覧]
+  {既存モデルPSと提案モデルO-PSで設定したパラメータ一覧}
+  \label{table:init_parameters}
+  \centering
+  \begin{tabular}{lll}
+  \hline
+  \multicolumn{1}{|l||}{パラメータ} & \multicolumn{1}{l|}{説明} & \multicolumn{1}{l|}{値} \\ \hline \hline
+  \multicolumn{1}{|l||}{$t$}  & \multicolumn{1}{l|}{シミュレーション実行時間}  & \multicolumn{1}{l|}{100}  \\ \hline
+  \multicolumn{1}{|l||}{$\Delta t$}  & \multicolumn{1}{l|}{シミュレーション実行時間の刻み幅}  & \multicolumn{1}{l|}{0.1}  \\ \hline
+  \multicolumn{1}{|l||}{$D_{ij}^0$} & \multicolumn{1}{l|}{ノード$i$と$j$を繋ぐエッジの初期コンダクティビティ} & \multicolumn{1}{l|}{1.0} \\ \hline
+  \multicolumn{1}{|l||}{$L_{ij}$}  & \multicolumn{1}{l|}{ノード$i$と$j$を繋ぐエッジの長さ}  & \multicolumn{1}{l|}{1.0}  \\ \hline
+  \multicolumn{1}{|l||}{$\gamma$}  & \multicolumn{1}{l|}{エッジの成長指数}  & \multicolumn{1}{l|}{1.0}  \\ \hline
+  \multicolumn{1}{|l||}{$F_0$}  & \multicolumn{1}{l|}{ネットワーク全体の流量}  & \multicolumn{1}{l|}{1.0}  \\ \hline
+  \multicolumn{1}{|l||}{$\alpha$}  & \multicolumn{1}{l|}{エッジの消失定数}  & \multicolumn{1}{l|}{1.0}  \\ \hline
+  \multicolumn{1}{|l||}{$\beta$}  & \multicolumn{1}{l|}{振動成分の影響定数}  & \multicolumn{1}{l|}{0.001}  \\ \hline
+  \multicolumn{1}{|l||}{$\kappa$}  & \multicolumn{1}{l|}{エッジ内流量の周期変化}  & \multicolumn{1}{l|}{0.02}  \\ \hline
+  \multicolumn{1}{|l||}{$\phi_{ij}(t)$}  & \multicolumn{1}{l|}{時刻$t$におけるノード$i$と$j$を繋ぐエッジの振動位相変化}  & \multicolumn{1}{l|}{0.0}  \\ \hline
+  \multicolumn{1}{|l||}{$\bar{A}$}  & \multicolumn{1}{l|}{走化性波及の振幅上限定数}  & \multicolumn{1}{l|}{1.0}  \\ \hline
+  % \multicolumn{1}{|l||}{$\sigma$}  & \multicolumn{1}{l|}{走化性波及の分布}  & \multicolumn{1}{l|}{0.0}  \\ \hline
+  \multicolumn{1}{|l||}{$\tau$}  & \multicolumn{1}{l|}{走化性波及の振幅減衰率}  & \multicolumn{1}{l|}{10.0}  \\ \hline
+  \multicolumn{1}{|l||}{offset}  & \multicolumn{1}{l|}{走化性波及のオフセット値}  & \multicolumn{1}{l|}{1.0}  \\ \hline
+  \end{tabular}
+\end{table}
+
+
+```
 
 
 ARShow関連研究、図解1ホットアップデート
@@ -16,8 +66,6 @@ ARShow関連研究、図解6双方向インタラクション
 ARShow関連研究、図解7リモートレンダリング
 
 ---
-
-
 
 以下の内容は修論の関連研究の部分です、その内容をより分かりやすくなるために、適切なところに引用されたPDF(添付したディレクトリのpdf)の図をショットカットして差し込みたいです。
 
