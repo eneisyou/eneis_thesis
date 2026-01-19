@@ -34,9 +34,10 @@ AR （Augmented Reality）とは、実世界の情報にコンピュータ生成
 ロケーションベース AR は、GPS （全地球測位システム）や磁気センサ、加速度センサ等の位置情報を利用し、特定の地理的座標にデジタルコンテンツを配置する手法である（図\ref{fig:location_based_ar}）。
 本手法はPokemon GOに代表されるような広域な屋外展示には適している。しかし、屋内においては GPS 信号の遮断により位置特定精度が著しく低下することや、高さ方向の正確な整合（レジストレーション）に課題が残る場合が多く、ミリ単位の配置精度が求められる精密な芸術作品の展示には不向きである。
 
-\begin{figure}[tbp]
+% ロケーションベースARの図
+\begin{figure}[htbp]
 \begin{center}
-\includegraphics[width=100mm]{./figs/基礎概念/ロケーションベースAR.png}
+\includegraphics[width=80mm]{./figs/基礎概念/ロケーションベースAR.png}
 \caption{ロケーションベースARの概念図 [5]}
 \label{fig:location_based_ar}
 \end{center}
@@ -47,9 +48,10 @@ AR （Augmented Reality）とは、実世界の情報にコンピュータ生成
 マーカ型ビジョンベース AR は、特定の画像（マーカ）をカメラで認識し、その特徴量に基づいてデジタルコンテンツの表示位置や傾きを決定する手法である（図\ref{fig:marker_based_ar}）。
 本研究では、AR コンテンツの識別子（ID）と空間的な配置基準点（空間アンカー）の両方の機能を併せ持つ QR コードをマーカとして採用する。QR コードを用いることで、画像認識の安定性が向上し、鑑賞者は意図した作品を正確な位置座標で呼び出すことが可能となる。
 
-\begin{figure}[tbp]
+% マーカ型ビジョンベースARの図
+\begin{figure}[htbp]
 \begin{center}
-\includegraphics[width=100mm]{./figs/基礎概念/マーカ型ビジョンベースAR.png}
+\includegraphics[width=80mm]{./figs/基礎概念/マーカ型ビジョンベースAR.png}
 \caption{マーカ型ビジョンベースARの概念図 [5]}
 \label{fig:marker_based_ar}
 \end{center}
@@ -60,9 +62,10 @@ AR （Augmented Reality）とは、実世界の情報にコンピュータ生成
 マーカレス型ビジョンベース AR は、特定のマーカを必要とせず、SLAM （Simultaneous Localization and Mapping）技術等を用いて周囲の環境形状をリアルタイムに解析し認識する手法である（図\ref{fig:markerless_ar}）。
 本研究で使用する HMD （ヘッドマウントディスプレイ）である Meta Quest 3 等の最新デバイスでは、深度センサとカメラを用いた高度な空間認識が可能であり、壁面や床面を物理的な制約としてデジタルコンテンツに反映させることができる。しかし、この方式は環境特徴点の抽出と追跡に多大な計算リソースを要するため、モバイル HMD 単体での動作においては、マーカ型と比較してリアルタイム性および長時間稼働時の安定性に課題が残る。
 
-\begin{figure}[tbp]
+% マーカレス型ビジョンベースARの図
+\begin{figure}[htbp]
 \begin{center}
-\includegraphics[width=100mm]{./figs/基礎概念/マーカレス型ビジョンベースAR.png}
+\includegraphics[width=80mm]{./figs/基礎概念/マーカレス型ビジョンベースAR.png}
 \caption{マーカレス型ビジョンベースARの概念図 [5]}
 \label{fig:markerless_ar}
 \end{center}
@@ -126,9 +129,10 @@ Meta XR Voice SDK は音声認識モジュールであり、アプリケーシ�
 
 Wit.AI は Meta 社が提供する自然言語処理（Natural Language Processing）プラットフォームであり、ユーザーの非構造化データ（音声やテキスト）をコンピュータが処理可能な構造化データへと変換するクラウドサービスである。本研究において、Wit.AI は鑑賞者の発話意図を解析し、具体的な操作命令へと変換する核心的なエンジンとして機能する。Wit.AI の処理プロセスは図\ref{fig:witai_process}に示すように、主に以下の要素によって構成される。
 
-\begin{figure}[tbp]
+% Wit.AIの処理プロセスの図
+\begin{figure}[htbp]
 \begin{center}
-\includegraphics[width=100mm]{./figs/基礎概念/Wit.AIの処理プロセス.png}
+\includegraphics[width=80mm]{./figs/基礎概念/Wit.AIの処理プロセス.png}
 \caption{Wit.AIにおける音声処理プロセス [5]}
 \label{fig:witai_process}
 \end{center}
@@ -170,6 +174,15 @@ HybridCLR [4]は、この IL2CPP 環境下において、AOT 実行とインタ�
 
 提案システムはクライアント・サーバモデルを採用し、以下の 3 つの主要コンポーネントから構成される（図\ref{fig:proposed_system}）。
 
+% 提案システム構成の図
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=80mm]{./figs/基礎概念/提案システム構成.png}
+\caption{提案システムの全体構成図 [5].}
+\label{fig:proposed_system}
+\end{center}
+\end{figure}
+
 \begin{itemize}
     \item \textbf{ARShowNode}: AR 展示物の作成とアップロードを行うキュレーター側プログラム
     \item \textbf{ARShow}: 閲覧者用クライアントアプリケーション
@@ -177,14 +190,6 @@ HybridCLR [4]は、この IL2CPP 環境下において、AOT 実行とインタ�
 \end{itemize}
 
 この 3 つの部分が有機的に連携することにより、キュレーターは自身のコンテンツを容易に配信かつ更新でき、閲覧者は最新の展示物をシームレスに体験できる環境が実現される。
-
-\begin{figure}[tbp]
-\begin{center}
-\includegraphics[width=100mm]{./figs/基礎概念/提案システム構成.png}
-\caption{提案システムの全体構成図 [5].}
-\label{fig:proposed_system}
-\end{center}
-\end{figure}
 
 展示作品の実体である AssetBundle は、アプリケーション内部には保持されず、外部サーバに配置される。クライアントアプリは QR コードの読み取りをトリガーとして、必要なデータのみをオンデマンドで取得し展開する。このアーキテクチャにより、鑑賞者のデバイスストレージを圧迫することなく、作品数を無制限に拡張することが可能となる。また、展示内容の更新はサーバ側のアーカイブファイル差し替えのみで完結するため、前述した「更新プロセスの困難さ」および「コミュニケーションコスト」の課題を根本から解決する基盤となる。
 
