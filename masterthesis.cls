@@ -150,7 +150,11 @@
           \bfseries%
           \@author \par
           \@eauthor \par
-          \vskip 2em%
+          \vskip 1em%
+          \begin{center}
+            \includegraphics[width=4cm]{./figs/logo_u-ryukyu.png}
+          \end{center}
+          \vskip 1em%
           琉球大学\par
           大学院理工学研究科\par
           工学専攻\par
