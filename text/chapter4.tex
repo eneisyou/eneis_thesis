@@ -345,9 +345,9 @@ Unity の AssetBundle 機能を利用し、Node ごとのリソースとコー�
 \label{fig:assetbundle_global}
 \end{figure}
 
-\subsubsection{WitAI}
+\subsubsection{WitAI 配置}
 
-音声操作を実現するため、Meta 社が提供する自然言語処理サービス Wit.ai を導入した（図\ref{fig:witai_config}）。Node 内で音声認識が必要な場合、ユーザーの音声入力は Meta XR Voice SDK を通じてテキスト化され、Wit.ai サーバへ送信される。サーバ上で事前に定義されたインテント（Intent）やエンティティ（Entity）の解析が行われ、その結果に基づいて Unity 側の関数がトリガーされる仕組みである。本研究では、中国語による音声コマンド制御の事例を実装した。
+音声操作を実現するため、Meta 社が提供する自然言語処理サービス WitAI 配置を導入した（図\ref{fig:witai_config}）。Node 内で音声認識が必要な場合、ユーザーの音声入力は Meta XR Voice SDK を通じてテキスト化され、WitAI サーバへ送信される。サーバ上で事前に定義されたインテント（Intent）やエンティティ（Entity）の解析が行われ、その結果に基づいて Unity 側の関数がトリガーされる仕組みである。本研究では、中国語による音声コマンド制御の事例を実装した。
 
 % WitAI配置図
 \begin{figure}[htbp]
@@ -369,7 +369,7 @@ ARShow は、Meta Quest 3 上で動作する鑑賞者用アプリケーション
 \label{fig:arshow_global}
 \end{figure}
 
-\subsubsection{スキャンモード}
+\subsubsection{スキャンボタン}
 
 アプリ起動後、ユーザーは UI 上の「ScanQr」ボタンを押下することでスキャンモードへ移行する（図\ref{fig:scan_qr_button}）。このモードでは、パススルーカメラの映像上に QR コード検出用のガイドが表示され、認識待機状態となる。
 
@@ -442,7 +442,7 @@ Unity の IL2CPP ビルドでは、ビルド時に使用されていないコー
 
 \subsection{サーバ}
 
-AssetBundle のホスティングには、開発 PC 機上で動作する ASP.NET Core ベースの静的ファイルサーバを用いた。本サーバは Minimal API 構成で実装されており、HTTP リクエストに応じて AssetBundle ファイルを提供する単純かつ高速な仕様となっている。
+本システムにおけるサーバは、動的なプログラム処理（アプリケーションロジック）を持たず、クライアントからのリクエストに応じてファイル（AssetBundle）を配信することに特化した静的ファイルサーバである。実装には ASP.NET Core を採用しており、未来に機能（ユーザ情報登録等）を拡張するために柔軟性を保持してある。ホストが開発 PC 機上で動作する。これにより、サーバサイドとクライアント（Unity）間で C\# によるプログラム言語を統一させ、開発効率の向上を図っている。
 
 「ARShow」プロジェクトのメニューバーには、図\ref{fig:server_tool}に示すように、このサーバの「起動」「停止」「ディレクトリ清掃」を制御する機能も統合されており、展示運用時のサーバ管理を容易にしている。なお、開発環境のLAN（構内通信網）においては、ARShow アプリにサーバから AssetBundle をダウンロードする用の IP アドレスを開発 PC 機の実際アドレースと一致させる必要がある。
 
@@ -453,6 +453,29 @@ AssetBundle のホスティングには、開発 PC 機上で動作する ASP.NE
 \caption[ServerTool]{ServerTool [5]．}
 \label{fig:server_tool}
 \end{figure}
+
+\section{アーキテクチャ}
+
+提案システムはクライアント・サーバモデルを採用し、以下の三つの主要コンポーネントから構成される（図\ref{fig:proposed_system}）。
+
+% 提案システム構成の図
+\begin{figure}[htbp]
+\begin{center}
+\includegraphics[width=80mm]{./figs/提案システム/提案システム構成.png}
+\caption{提案システムの全体構成図 [5].}
+\label{fig:proposed_system}
+\end{center}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{ARShowNode}: AR 展示物の作成とアップロードを行うキュレーター側プログラム
+    \item \textbf{ARShow}: 閲覧者用クライアントアプリケーション
+    \item \textbf{Static File Server}: コンテンツを配信する静的ファイルサーバ
+\end{itemize}
+
+この 3 つの部分が有機的に連携することにより、キュレーターは自身のコンテンツを容易に配信かつ更新でき、閲覧者は最新の展示物をシームレスに体験できる環境が実現される。
+
+展示作品の実体である AssetBundle は、アプリケーション内部には保持されず、外部サーバに配置される。クライアントアプリは QR コードの読み取りをトリガーとして、必要なデータのみをオンデマンドで取得し展開する。このアーキテクチャにより、鑑賞者のデバイスストレージを圧迫することなく、作品数を無制限に拡張することが可能となる。また、展示内容の更新はサーバ側のアーカイブファイル差し替えのみで完結するため、前述した「更新プロセスの困難さ」および「コミュニケーションコスト」の課題を解決する基盤となる。
 
 \section{UI とインタラクション}
 
